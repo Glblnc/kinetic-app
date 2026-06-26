@@ -1,0 +1,50 @@
+# Déploiement Render (https://render.com) en quasi « 1 clic ».
+# Sur Render : New + → "Blueprint" → connecte ce dépôt. Render lit ce fichier,
+# crée la base PostgreSQL et le service web, puis te demande les valeurs
+# marquées "sync: false" (à coller dans le tableau de bord).
+
+databases:
+  - name: kinetic-db
+    plan: free
+    databaseName: kinetic
+    user: kinetic
+
+services:
+  - type: web
+    name: kinetic
+    runtime: python
+    plan: free
+    region: frankfurt
+    buildCommand: "pip install -r server/requirements.txt && python server/manage.py collectstatic --noinput && python server/manage.py migrate"
+    startCommand: "gunicorn kinetic_server.wsgi:application --chdir server --bind 0.0.0.0:$PORT"
+    healthCheckPath: /api/auth/me
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.10"
+      - key: DJANGO_DEBUG
+        value: "0"
+      # Clé secrète générée automatiquement par Render.
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      # URL de connexion fournie par la base PostgreSQL ci-dessus.
+      - key: DATABASE_URL
+        fromDatabase:
+          name: kinetic-db
+          property: connectionString
+      # Inscription publique (réservée aux 14 ans et plus, attestation à l'inscription).
+      - key: KINETIC_ALLOW_REGISTRATION
+        value: "1"
+      # Active HSTS (1 an) une fois le HTTPS validé.
+      - key: DJANGO_HSTS_SECONDS
+        value: "31536000"
+      # --- À renseigner dans le tableau de bord Render (jamais dans le code) ---
+      # Ta clé API Claude (sk-ant-...).
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      # Clés Web Push : copie-les depuis ton fichier local server/.env.
+      - key: VAPID_PUBLIC_KEY
+        sync: false
+      - key: VAPID_PRIVATE_KEY
+        sync: false
+      - key: VAPID_CLAIM_SUB
+        value: "mailto:gaelblancfr@gmail.com"

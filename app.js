@@ -65,7 +65,8 @@ const _t = {
     authWelcome:"Connecte-toi pour accéder à ton espace.",authCreate:"Crée ton compte (première utilisation).",authUser:"Identifiant",authPass:"Mot de passe",authLogin:"Se connecter",authRegister:"Créer le compte",authClosed:"Les inscriptions sont fermées : un compte existe déjà.",authOffline:"Hors ligne : connexion au serveur impossible. Reconnecte-toi quand le serveur sera disponible.",
     logout:"Déconnexion",aiServer:"Le coach IA et tes données sont sécurisés côté serveur. La clé API n'est jamais exposée au navigateur.",
     authNoAccount:"Pas encore de compte ?",authHaveAccount:"Déjà un compte ?",
-    notifTest:"Tester la notification",notifSent:"Notification envoyée",notifBlocked:"Notifications bloquées par le navigateur"
+    notifTest:"Tester la notification",notifSent:"Notification envoyée",notifBlocked:"Notifications bloquées par le navigateur",
+    ageConfirm:"Je certifie avoir 14 ans ou plus.",ageRequired:"Tu dois avoir 14 ans ou plus pour créer un compte."
   },
   en: {
     app:"Kinetic",tag:"AI Fitness Coach",h:"Home",p:"Profile",t:"Training",n:"Nutrition",g:"Progress",c:"AI Coach",
@@ -130,7 +131,8 @@ const _t = {
     authWelcome:"Log in to access your space.",authCreate:"Create your account (first use).",authUser:"Username",authPass:"Password",authLogin:"Log in",authRegister:"Create account",authClosed:"Registration is closed: an account already exists.",authOffline:"Offline: cannot reach the server. Log in again when it is available.",
     logout:"Log out",aiServer:"The AI coach and your data are secured server-side. The API key is never exposed to the browser.",
     authNoAccount:"No account yet?",authHaveAccount:"Already have an account?",
-    notifTest:"Send a test notification",notifSent:"Notification sent",notifBlocked:"Notifications blocked by the browser"
+    notifTest:"Send a test notification",notifSent:"Notification sent",notifBlocked:"Notifications blocked by the browser",
+    ageConfirm:"I confirm I am 14 or older.",ageRequired:"You must be 14 or older to create an account."
   }
 };
 
@@ -337,7 +339,7 @@ function scheduleServerSync(){
 function markSynced(ok){ const s=document.getElementById("syncStatus"); if(!s)return; s.dataset.synced=ok?"1":"0"; }
 
 async function doLogin(username,password){ const me=await api("/api/auth/login",{method:"POST",body:{username,password}}); afterAuth(me); }
-async function doRegister(username,password){ const me=await api("/api/auth/register",{method:"POST",body:{username,password}}); afterAuth(me); }
+async function doRegister(username,password){ const me=await api("/api/auth/register",{method:"POST",body:{username,password,ageConfirmed:true}}); afterAuth(me); }
 async function afterAuth(me){
   auth.authenticated=true; auth.username=me.username;
   localStorage.setItem("kinetic.session","1");
@@ -365,6 +367,7 @@ function renderAuth(offline, registrationOpen){
         <form class="onboarding-form" id="authForm">
           <label class="wide">${_("authUser")}<input id="authUser" autocomplete="username" required></label>
           <label class="wide">${_("authPass")}<input id="authPass" type="password" autocomplete="${isReg?"new-password":"current-password"}" required></label>
+          ${isReg?`<label class="wide" style="display:flex;align-items:flex-start;gap:.5rem;font-size:.82rem;color:var(--muted)"><input type="checkbox" id="authAge" style="width:auto;margin-top:.2rem"> <span>${_("ageConfirm")}</span></label>`:""}
           <div class="wide" id="authError" style="color:var(--red);font-size:.85rem;min-height:1em"></div>
           <div class="wide"><button class="btn primary block" type="submit">${isReg?_("authRegister"):_("authLogin")}</button></div>
         </form>
@@ -378,6 +381,7 @@ function renderAuth(offline, registrationOpen){
       const u=document.getElementById("authUser").value.trim();
       const p=document.getElementById("authPass").value;
       const err=document.getElementById("authError"); err.textContent="";
+      if(isReg && !document.getElementById("authAge")?.checked){ err.textContent=_("ageRequired"); return; }
       const btn=e.currentTarget.querySelector("button"); btn.disabled=true;
       try{ if(isReg)await doRegister(u,p); else await doLogin(u,p); }
       catch(ex){ err.textContent=ex.message||"Erreur"; btn.disabled=false; }

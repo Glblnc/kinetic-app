@@ -59,6 +59,11 @@ def register(request):
     password = body.get("password") or ""
     if not username or not password:
         return JsonResponse({"error": "Identifiant et mot de passe requis."}, status=400)
+    # L'application est réservée aux 14 ans et plus (attestation obligatoire).
+    if body.get("ageConfirmed") is not True:
+        return JsonResponse(
+            {"error": "Tu dois avoir 14 ans ou plus pour créer un compte."}, status=400
+        )
     if User.objects.filter(username__iexact=username).exists():
         return JsonResponse({"error": "Cet identifiant existe déjà."}, status=400)
     try:

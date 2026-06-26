@@ -17,7 +17,32 @@ Tu n'as pas à gérer de certificat TLS toi-même.
 Le projet est déjà prêt : `Procfile`, `gunicorn`, `whitenoise`, support de
 `DATABASE_URL` et réglages HTTPS sont en place.
 
-### Étapes (exemple avec Render)
+> ℹ️ **Réservé aux 14 ans et plus** : l'inscription demande une attestation d'âge
+> (vérifiée côté serveur). Pense à le mentionner sur ta page si tu communiques l'URL.
+
+### Le plus simple : Blueprint `render.yaml` (quasi « 1 clic »)
+
+Le dépôt contient un fichier **`render.yaml`** qui décrit tout (service web +
+PostgreSQL + variables). Sur **[Render](https://render.com)** :
+
+1. Pousse le code sur GitHub.
+2. Render → **New +** → **Blueprint** → connecte ce dépôt. Render crée
+   automatiquement la base PostgreSQL, le service web, génère `DJANGO_SECRET_KEY`
+   et branche `DATABASE_URL`.
+3. Il te demande seulement les valeurs **secrètes** à coller (jamais dans le code) :
+   - `ANTHROPIC_API_KEY` : ta clé Claude `sk-ant-...`.
+   - `VAPID_PUBLIC_KEY` et `VAPID_PRIVATE_KEY` : **copie-les depuis ton fichier
+     local `server/.env`** (générées lors de l'ajout des notifications).
+4. Déploie. Le nom d'hôte public est reconnu automatiquement (`RENDER_EXTERNAL_HOSTNAME`),
+   donc pas besoin de renseigner le domaine à la main.
+
+Une fois en ligne, ouvre l'URL HTTPS (ex. `https://kinetic.onrender.com`) :
+tout le monde peut créer un compte.
+
+> Sur l'offre gratuite, le service se met en veille après inactivité : le premier
+> chargement après une pause peut prendre ~30 s. Une offre payante l'évite.
+
+### Variante manuelle (sans Blueprint)
 
 1. **Pousse le code sur GitHub** (le `.gitignore` exclut déjà `.env`, la base et le venv).
 2. Crée un compte sur la plateforme *(à faire par toi)* et un **nouveau Web Service**
@@ -43,6 +68,9 @@ Le projet est déjà prêt : `Procfile`, `gunicorn`, `whitenoise`, support de
    | `DATABASE_URL` | fournie par la base PostgreSQL de la plateforme |
    | `ANTHROPIC_API_KEY` | `sk-ant-...` (reste côté serveur) |
    | `KINETIC_ALLOW_REGISTRATION` | `1` (inscription ouverte à tous) |
+   | `VAPID_PUBLIC_KEY` | copie depuis ton `server/.env` |
+   | `VAPID_PRIVATE_KEY` | copie depuis ton `server/.env` (reste côté serveur) |
+   | `VAPID_CLAIM_SUB` | `mailto:ton-email` |
 
    Générer une clé secrète :
    ```
@@ -51,6 +79,16 @@ Le projet est déjà prêt : `Procfile`, `gunicorn`, `whitenoise`, support de
 7. Déploie. Une fois en ligne, ouvre l'URL HTTPS : tout le monde peut créer un compte.
 8. **HSTS (optionnel, après vérification)** : quand tout fonctionne en HTTPS, ajoute
    `DJANGO_HSTS_SECONDS=31536000` pour forcer HTTPS côté navigateur.
+
+### Rappels de séance (notifications planifiées)
+
+Pour que les rappels partent automatiquement, planifie la commande
+`send_reminders` toutes les ~10 minutes (Render : « Cron Job » ; cron Linux ;
+ou tâche planifiée) :
+```
+python server/manage.py send_reminders
+```
+Diffuser une info importante à tous : `python server/manage.py broadcast_push "Titre" "Message"`.
 
 > Hors DEBUG, les cookies sécurisés, la redirection HTTPS et l'en-tête proxy TLS
 > s'activent automatiquement (voir `server/kinetic_server/settings.py`).

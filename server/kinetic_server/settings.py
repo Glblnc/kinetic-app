@@ -164,6 +164,13 @@ CSRF_TRUSTED_ORIGINS = [
     if o.strip()
 ]
 
+# Render (et hébergeurs similaires) exposent le nom d'hôte public via cette
+# variable : on l'autorise automatiquement, sans avoir à connaître l'URL d'avance.
+_render_host = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
+if _render_host:
+    ALLOWED_HOSTS.append(_render_host)
+    CSRF_TRUSTED_ORIGINS.append("https://" + _render_host)
+
 # --- Durcissement HTTPS (production) ---------------------------------------
 if not DEBUG:
     SECURE_CONTENT_TYPE_NOSNIFF = True
