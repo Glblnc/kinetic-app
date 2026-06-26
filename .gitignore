@@ -1,0 +1,22 @@
+# Secrets et environnement
+server/.env
+
+# Environnement virtuel Python
+server/.venv/
+
+# Base de données locale
+server/db.sqlite3
+
+# Fichiers statiques collectés
+server/staticfiles/
+
+# Caches Python
+__pycache__/
+*.py[cod]
+
+# Configuration locale de l'outil Claude
+.claude/
+
+# Fichiers temporaires OS
+.DS_Store
+Thumbs.db
