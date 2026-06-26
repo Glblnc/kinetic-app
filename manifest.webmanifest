@@ -1,0 +1,37 @@
+{
+  "name": "Kinetic",
+  "short_name": "Kinetic",
+  "description": "Coach fitness, nutrition et progression.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#090909",
+  "theme_color": "#0a0a0b",
+  "lang": "fr-FR",
+  "icons": [
+    {
+      "src": "assets/kinetic-logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/kinetic-logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["health", "fitness", "lifestyle"],
+  "shortcuts": [
+    {
+      "name": "Entraînement",
+      "url": "./index.html#training"
+    },
+    {
+      "name": "Nutrition",
+      "url": "./index.html#nutrition"
+    }
+  ]
+}
