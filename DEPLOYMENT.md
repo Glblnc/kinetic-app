@@ -50,13 +50,13 @@ tout le monde peut créer un compte.
 3. **Base de données** : crée une base **PostgreSQL** sur la plateforme. ⚠️ Important :
    sur ces hébergeurs, le disque est éphémère — **SQLite serait effacé à chaque
    redéploiement**. PostgreSQL est donc nécessaire pour conserver les comptes.
-4. **Commande de build** :
+4. **Commande de build** (sans `migrate` : la base n'est pas toujours prête au build) :
    ```
-   pip install -r server/requirements.txt && python server/manage.py collectstatic --noinput && python server/manage.py migrate
+   pip install -r server/requirements.txt && python server/manage.py collectstatic --noinput
    ```
-5. **Commande de démarrage** : déjà dans le `Procfile`
+5. **Commande de démarrage** (lance `migrate` quand la base est prête, puis le serveur) :
    ```
-   gunicorn kinetic_server.wsgi:application --chdir server --bind 0.0.0.0:$PORT
+   python server/manage.py migrate && gunicorn kinetic_server.wsgi:application --chdir server --bind 0.0.0.0:$PORT
    ```
 6. **Variables d'environnement** (dans le tableau de bord de la plateforme, pas dans le code) :
    | Variable | Valeur |

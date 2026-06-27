@@ -170,6 +170,11 @@ _render_host = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
 if _render_host:
     ALLOWED_HOSTS.append(_render_host)
     CSRF_TRUSTED_ORIGINS.append("https://" + _render_host)
+# Filet de sécurité sur Render : autorise tout sous-domaine onrender.com
+# (couvre l'URL du service et le health check de la plateforme).
+if os.environ.get("RENDER"):
+    ALLOWED_HOSTS.append(".onrender.com")
+    CSRF_TRUSTED_ORIGINS.append("https://*.onrender.com")
 
 # --- Durcissement HTTPS (production) ---------------------------------------
 if not DEBUG:
