@@ -474,7 +474,8 @@ function renderOnboarding() {
     document.getElementById("onboardingNext")?.addEventListener("click",()=>ss(step,()=>{step++;rs();}));
     document.getElementById("onboardingPrev")?.addEventListener("click",()=>{step--;rs();});
     document.getElementById("onboardingFinish")?.addEventListener("click",()=>ss(step,finish));
-    c.querySelectorAll("[data-equipment-chip]").forEach(c=>c.addEventListener("click",()=>c.setAttribute("aria-pressed",c.getAttribute("aria-pressed")!=="true")));
+    // Les chips de matériel sont gérés par le clic global (bindEvents) ; pas de
+    // second gestionnaire ici, sinon le double basculement annule la sélection.
   }
   function ss(cur,cb){
     if(cur===0){state.profile.name=(document.getElementById("oname")?.value||"").trim();state.profile.age=parseInt(document.getElementById("oage")?.value)||30;state.profile.sex=document.getElementById("osex")?.value||"Homme";state.profile.height=parseInt(document.getElementById("oheight")?.value)||175;state.profile.weight=parseInt(document.getElementById("oweight")?.value)||75;state.profile.level=document.getElementById("olevel")?.value||"Intermédiaire";}
