@@ -6,6 +6,7 @@
 databases:
   - name: kinetic-db
     plan: free
+    region: frankfurt        # MÊME région que le service web (sinon base injoignable)
     databaseName: kinetic
     user: kinetic
 
