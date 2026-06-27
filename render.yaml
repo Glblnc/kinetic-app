@@ -20,8 +20,9 @@ services:
     startCommand: "python server/manage.py migrate && gunicorn kinetic_server.wsgi:application --chdir server --bind 0.0.0.0:$PORT"
     healthCheckPath: /api/auth/me
     envVars:
-      - key: PYTHON_VERSION
-        value: "3.12.10"
+      # Pas de PYTHON_VERSION épinglé : Render utilise sa version Python par
+      # défaut (compatible Django 5.1 + tout le projet). Évite l'échec de build
+      # si une version précise n'est pas disponible sur l'image Render.
       - key: DJANGO_DEBUG
         value: "0"
       # Clé secrète générée automatiquement par Render.
