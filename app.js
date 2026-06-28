@@ -66,7 +66,10 @@ const _t = {
     logout:"Déconnexion",aiServer:"Le coach IA et tes données sont sécurisés côté serveur. La clé API n'est jamais exposée au navigateur.",
     authNoAccount:"Pas encore de compte ?",authHaveAccount:"Déjà un compte ?",
     notifTest:"Tester la notification",notifSent:"Notification envoyée",notifBlocked:"Notifications bloquées par le navigateur",
-    ageConfirm:"Je certifie avoir 14 ans ou plus.",ageRequired:"Tu dois avoir 14 ans ou plus pour créer un compte."
+    ageConfirm:"Je certifie avoir 14 ans ou plus.",ageRequired:"Tu dois avoir 14 ans ou plus pour créer un compte.",
+    instTitle:"Installer Kinetic",instDone:"Application déjà installée",
+    instIos:"Sur iPhone/iPad :<br>1. Appuie sur le bouton <b>Partager</b> (le carré avec une flèche ↑) dans la barre de Safari.<br>2. Fais défiler et choisis <b>« Sur l'écran d'accueil »</b>.<br>3. Appuie sur <b>« Ajouter »</b>. L'icône Kinetic apparaît sur ton écran d'accueil.",
+    instOther:"Dans le menu de ton navigateur (icône <b>⋮</b> ou <b>≡</b>), choisis <b>« Installer l'application »</b> ou <b>« Ajouter à l'écran d'accueil »</b>."
   },
   en: {
     app:"Kinetic",tag:"AI Fitness Coach",h:"Home",p:"Profile",t:"Training",n:"Nutrition",g:"Progress",c:"AI Coach",
@@ -132,7 +135,10 @@ const _t = {
     logout:"Log out",aiServer:"The AI coach and your data are secured server-side. The API key is never exposed to the browser.",
     authNoAccount:"No account yet?",authHaveAccount:"Already have an account?",
     notifTest:"Send a test notification",notifSent:"Notification sent",notifBlocked:"Notifications blocked by the browser",
-    ageConfirm:"I confirm I am 14 or older.",ageRequired:"You must be 14 or older to create an account."
+    ageConfirm:"I confirm I am 14 or older.",ageRequired:"You must be 14 or older to create an account.",
+    instTitle:"Install Kinetic",instDone:"App already installed",
+    instIos:"On iPhone/iPad:<br>1. Tap the <b>Share</b> button (the square with an ↑ arrow) in Safari's bar.<br>2. Scroll and choose <b>“Add to Home Screen”</b>.<br>3. Tap <b>“Add”</b>. The Kinetic icon appears on your home screen.",
+    instOther:"In your browser menu (<b>⋮</b> or <b>≡</b> icon), choose <b>“Install app”</b> or <b>“Add to Home Screen”</b>."
   }
 };
 
@@ -173,10 +179,13 @@ const exerciseLibrary = [
   {id:"ohp",name:"Développé militaire",nameEn:"Overhead Press",muscles:["Épaules","Triceps"],equipment:["Barre","Haltères"],sets:3,reps:"6-8",rest:120,load:38,cue:"Gainage fort, trajectoire proche du visage.",cueEn:"Core tight, bar path near face.",alternative:"Élévations latérales",alternativeEn:"Lateral raises",demo:"press",limitation:"épaule"},
   {id:"lunge",name:"Fentes arrière",nameEn:"Reverse Lunges",muscles:["Jambes","Fessiers","Gainage"],equipment:["Poids du corps","Haltères"],sets:3,reps:"10/côté",rest:90,load:16,cue:"Pas arrière, genou avant stable.",cueEn:"Step back, front knee stable.",alternative:"Step-ups",alternativeEn:"Step-ups",demo:"squat",limitation:"genou"},
   {id:"plank",name:"Planche",nameEn:"Plank",muscles:["Gainage","Épaules"],equipment:["Poids du corps"],sets:3,reps:"40-60 s",rest:60,load:0,cue:"Bassin neutre, respiration régulière.",cueEn:"Neutral pelvis, steady breathing.",alternative:"Dead bug",alternativeEn:"Dead bug",demo:"plank"},
-  {id:"pullup",name:"Traction",nameEn:"Pull-up",muscles:["Dos","Biceps"],equipment:["Barre"],sets:3,reps:"6-10",rest:120,load:0,cue:"Coudes vers le bas.",cueEn:"Elbows down.",alternative:"Rowing barre",alternativeEn:"Barbell row",demo:"row",limitation:"épaule"},
+  {id:"pullup",name:"Traction pronation",nameEn:"Pull-up",muscles:["Dos","Biceps"],equipment:["Barre de traction"],sets:3,reps:"6-10",rest:120,load:0,cue:"Mains en pronation, tire les coudes vers le bas, poitrine vers la barre.",cueEn:"Overhand grip, pull elbows down, chest to bar.",alternative:"Tirage élastique",alternativeEn:"Band pulldown",demo:"pull",limitation:"épaule"},
+  {id:"chinup",name:"Traction supination",nameEn:"Chin-up",muscles:["Dos","Biceps"],equipment:["Barre de traction"],sets:3,reps:"6-12",rest:120,load:0,cue:"Mains en supination, gainage serré, monte le menton au-dessus de la barre.",cueEn:"Underhand grip, brace core, chin over the bar.",alternative:"Curl haltères",alternativeEn:"Dumbbell curl",demo:"pull"},
+  {id:"hang-leg-raise",name:"Relevé de jambes suspendu",nameEn:"Hanging Leg Raise",muscles:["Gainage"],equipment:["Barre de traction"],sets:3,reps:"8-12",rest:60,load:0,cue:"Suspendu à la barre, monte les jambes tendues sans balancer.",cueEn:"Hang from the bar, raise straight legs without swinging.",alternative:"Relevé de genoux",alternativeEn:"Knee raises",demo:"pull"},
   {id:"squat",name:"Squat barre",nameEn:"Barbell Squat",muscles:["Quadriceps","Fessiers","Ischios"],equipment:["Barre"],sets:4,reps:"6-8",rest:150,load:80,cue:"Dos gainé, genoux suivent les pieds.",cueEn:"Core braced, knees track toes.",alternative:"Squat goblet",alternativeEn:"Goblet squat",demo:"squat",limitation:"genou"},
   {id:"deadlift",name:"Soulevé de terre",nameEn:"Deadlift",muscles:["Ischios","Fessiers","Lombaires","Dos"],equipment:["Barre"],sets:3,reps:"5",rest:180,load:100,cue:"Dos droit, barre proche du corps.",cueEn:"Straight back, bar close.",alternative:"Romanian deadlift",alternativeEn:"Romanian deadlift",demo:"row"},
-  {id:"dips",name:"Dips",nameEn:"Dips",muscles:["Pectoraux","Triceps","Épaules"],equipment:["Barre"],sets:3,reps:"8-12",rest:90,load:0,cue:"Descente contrôlée, coudes serrés.",cueEn:"Controlled descent, elbows tucked.",alternative:"Pompes serrées",alternativeEn:"Close-grip push-ups",demo:"press",limitation:"épaule"},
+  {id:"dips",name:"Dips",nameEn:"Dips",muscles:["Pectoraux","Triceps","Épaules"],equipment:["Barre de dips"],sets:3,reps:"8-12",rest:90,load:0,cue:"Descente contrôlée, coudes serrés, buste légèrement penché en avant.",cueEn:"Controlled descent, elbows tucked, slight forward lean.",alternative:"Pompes serrées",alternativeEn:"Close-grip push-ups",demo:"dip",limitation:"épaule"},
+  {id:"dips-triceps",name:"Dips triceps",nameEn:"Triceps Dips",muscles:["Triceps","Pectoraux"],equipment:["Barre de dips"],sets:3,reps:"10-15",rest:75,load:0,cue:"Buste vertical, coudes vers l'arrière pour cibler les triceps.",cueEn:"Upright torso, elbows back to target triceps.",alternative:"Extension triceps",alternativeEn:"Triceps extension",demo:"dip"},
   {id:"curl",name:"Curl haltères",nameEn:"Dumbbell Curl",muscles:["Biceps"],equipment:["Haltères"],sets:3,reps:"10-15",rest:60,load:12,cue:"Coudes fixes, contraction haute.",cueEn:"Elbows fixed, squeeze at top.",alternative:"Curl marteau",alternativeEn:"Hammer curl",demo:"press"},
   {id:"ext",name:"Extension triceps",nameEn:"Triceps Extension",muscles:["Triceps"],equipment:["Haltères"],sets:3,reps:"10-15",rest:60,load:10,cue:"Coudes vers le plafond.",cueEn:"Elbows up, slow descent.",alternative:"Dips au sol",alternativeEn:"Floor dips",demo:"press"},
   {id:"lat-raise",name:"Élévations latérales",nameEn:"Lateral Raises",muscles:["Épaules"],equipment:["Haltères","Élastiques"],sets:3,reps:"12-15",rest:45,load:8,cue:"Coudes légèrement fléchis.",cueEn:"Slightly bent elbows.",alternative:"Élévations avant",alternativeEn:"Front raises",demo:"press"},
@@ -434,7 +443,7 @@ function bindEvents() {
   });
 
   document.getElementById("themeToggle").addEventListener("click",()=>{state.settings.theme=state.settings.theme==="light"?"dark":"light";applyTheme();saveState();showToast(state.settings.theme==="light"?_("tl"):_("td"));});
-  document.getElementById("installBtn").addEventListener("click",async()=>{if(!installPrompt){showToast(_("ia"));return;}installPrompt.prompt();await installPrompt.userChoice;installPrompt=null;});
+  document.getElementById("installBtn").addEventListener("click",showInstallHelp);
   window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();installPrompt=e;showToast(_("ir"));});
   window.addEventListener("online",()=>{updateSyncStatus();if(auth.authenticated)pushServerState();});window.addEventListener("offline",updateSyncStatus);
   document.addEventListener("change",e=>{
@@ -459,7 +468,7 @@ function renderOnboarding() {
   const shell=document.querySelector(".app-shell");shell.style.display="none";
   const c=document.createElement("div");c.id="onboardingContainer";c.className="onboarding-overlay";document.body.appendChild(c);
   function rs(){
-    const p=state.profile;const eq=["Haltères","Barre","Banc","Poulie","Élastiques","Poids du corps"];
+    const p=state.profile;const eq=["Haltères","Barre","Banc","Poulie","Barre de traction","Barre de dips","Élastiques","Poids du corps"];
     let h=`<div class="onboarding-modal"><div class="onboarding-header"><h2>${_("onb")}</h2><p>${_("onbs")}</p><div class="onboarding-steps">`;
     for(let i=0;i<total;i++)h+=`<div class="onboarding-dot ${i===step?"active":i<step?"done":""}"></div>`;
     h+=`</div></div><div class="onboarding-body">`;
@@ -502,7 +511,7 @@ function renderDashboard() {
 }
 
 function renderProfile() {
-  const p=state.profile,targets=calculateNutrition(p),allEq=["Haltères","Barre","Banc","Poulie","Élastiques","Poids du corps"];
+  const p=state.profile,targets=calculateNutrition(p),allEq=["Haltères","Barre","Banc","Poulie","Barre de traction","Barre de dips","Élastiques","Poids du corps"];
   document.getElementById("profileView").innerHTML=`
     <div class="grid cols-2">
       <div class="panel"><div class="panel-head"><div><h2>${_("up")}</h2><p>${_("sv")}</p></div><span class="tag warn">${_("fr")}</span></div>
@@ -649,7 +658,7 @@ function addFood(e){e.preventDefault();const n=new FormData(e.currentTarget).get
 
 function completeExercise(id){
   const ex=exerciseLibrary.find(e=>e.id===id);if(!ex)return;if(state.completedExercises.includes(todayISO()+"-"+ex.id))return;
-  const reps=parseInt(ex.reps,10)||10,load=ex.load,vol=Math.round(ex.sets*reps*Math.max(load,1));
+  const reps=parseInt(ex.reps,10)||10,load=adaptedLoad(ex,state.profile),vol=Math.round(ex.sets*reps*Math.max(load,1));
   state.workouts.push({id:createId("workout"),date:todayISO(),exerciseId:ex.id,name:ex.name,sets:ex.sets,reps,load,volume:vol,rpe:ex.limitation&&hasLimitation(ex.limitation)?6:7});
   state.completedExercises.push(todayISO()+"-"+ex.id);checkAchievements();persistAndRender(ex.name+" "+_("wv"));
 }
@@ -669,12 +678,38 @@ function buildPlan(profile){
   return{split,week,updatedAt:new Date().toISOString()};
 }
 
+// Adapte la charge d'un exercice au profil (poids, niveau, sexe).
+// Les charges de base de la bibliothèque sont calibrées pour ~75 kg, intermédiaire, homme.
+function adaptedLoad(ex,profile){
+  if(!ex.load)return 0; // exercices au poids du corps : pas de charge externe
+  const lvl=profile.level==="Débutant"?0.72:profile.level==="Avancé"?1.28:1;
+  const sex=profile.sex==="Femme"?0.62:profile.sex==="Autre"?0.8:1;
+  const bw=clamp((Number(profile.weight)||75)/75,0.6,1.6);
+  const load=ex.load*lvl*sex*bw;
+  return Math.max(2.5,Math.round(load/2.5)*2.5); // arrondi au pas de 2,5 kg
+}
+
 function selectExercises(pool,focus,profile){
-  const desired=focus.includes("Bas")?["Quadriceps","Fessiers","Ischios","Gainage"]:focus.includes("Haut")?["Pectoraux","Dos","Épaules","Triceps","Biceps"]:["Pectoraux","Dos","Quadriceps","Fessiers","Gainage"];
+  const desired=focus.includes("Push")?["Pectoraux","Épaules","Triceps"]
+    :focus.includes("Pull")?["Dos","Biceps","Gainage"]
+    :(focus.includes("Bas")||focus.includes("Jambe"))?["Quadriceps","Fessiers","Ischios","Mollets","Gainage"]
+    :focus.includes("Haut")?["Pectoraux","Dos","Épaules","Triceps","Biceps"]
+    :["Pectoraux","Dos","Quadriceps","Fessiers","Gainage"];
+  const target=profile.level==="Débutant"?3:5;
+  // Décalage selon la séance (A/B/C, Push/Pull…) pour varier les exercices
+  // d'une séance à l'autre et exploiter tout le matériel disponible.
+  const variant=focus.charCodeAt(focus.length-1)||0;
   const selected=[];
-  desired.forEach(m=>{const f=pool.find(e=>e.muscles.includes(m)&&!selected.includes(e));if(f)selected.push(f);});
-  pool.forEach(e=>{if(selected.length<5&&!selected.includes(e))selected.push(e);});
-  return selected.slice(0,profile.level==="Débutant"?3:5).map(e=>({...e,caution:e.limitation&&hasLimitation(e.limitation)?_("surv"):""}));
+  desired.forEach((m,mi)=>{
+    if(selected.length>=target)return;
+    const matches=pool.filter(e=>e.muscles.includes(m)&&!selected.includes(e));
+    if(matches.length)selected.push(matches[(variant+mi)%matches.length]);
+  });
+  if(selected.length<target){
+    const rest=pool.filter(e=>!selected.includes(e));
+    for(let k=0;k<rest.length&&selected.length<target;k++)selected.push(rest[(variant+k)%rest.length]);
+  }
+  return [...new Set(selected)].slice(0,target).map(e=>({...e,load:adaptedLoad(e,profile),caution:e.limitation&&hasLimitation(e.limitation)?_("surv"):""}));
 }
 
 function scheduleForSessions(s){const sch={2:[{i:0,f:"Full body A"},{i:3,f:"Full body B"}],3:[{i:0,f:"Full body A"},{i:2,f:"Full body B"},{i:4,f:"Full body C"}],4:[{i:0,f:"Haut du corps"},{i:1,f:"Bas du corps"},{i:3,f:"Haut du corps"},{i:5,f:"Bas du corps"}],5:[{i:0,f:"Push"},{i:1,f:"Pull"},{i:2,f:"Bas du corps"},{i:4,f:"Haut du corps"},{i:5,f:"Bas léger"}],6:[{i:0,f:"Push"},{i:1,f:"Pull"},{i:2,f:"Jambes"},{i:3,f:"Push"},{i:4,f:"Pull"},{i:5,f:"Jambes"}]};return(sch[s]||sch[3]).map(d=>({index:d.i,focus:d.f}));}
@@ -685,8 +720,13 @@ function calculateNutrition(profile){
   const goalAdj={"Prise de masse":280,"Perte de poids":-420,"Sèche":-480,"Recomposition corporelle":-80,"Force":180,"Endurance":80,"Remise en forme":-120};
   const bmr=10*profile.weight+6.25*profile.height-5*profile.age+sexAdj;
   const cal=Math.round((bmr*(actF[profile.activity]||1.45)+(goalAdj[profile.goal]||0))/10)*10;
-  const pf=["Prise de masse","Sèche","Recomposition corporelle","Force"].includes(profile.goal)?2:1.7;
-  const pro=Math.round(profile.weight*pf),fat=Math.round(profile.weight*0.9),car=Math.max(80,Math.round((cal-pro*4-fat*9)/4));
+  // Protéines : selon l'objectif ET le niveau (g par kg de poids de corps).
+  const goalProt=["Prise de masse","Sèche","Recomposition corporelle","Force"].includes(profile.goal)?2:1.7;
+  const lvlProt=profile.level==="Avancé"?0.2:profile.level==="Débutant"?-0.1:0;
+  const pf=goalProt+lvlProt;
+  // Lipides : selon le sexe (besoins essentiels un peu plus élevés chez la femme).
+  const fatFactor=profile.sex==="Femme"?1:0.9;
+  const pro=Math.round(profile.weight*pf),fat=Math.round(profile.weight*fatFactor),car=Math.max(80,Math.round((cal-pro*4-fat*9)/4));
   return{calories:cal,protein:pro,carbs:car,fat:fat};
 }
 
@@ -695,7 +735,24 @@ function exerciseCard(ex) {
   return `<article class="exercise"><div class="demo" aria-hidden="true">${demoSvg(ex.demo)}</div><div><h3>${esc(ex.name)} ${fav?"★":""}</h3><p>${ex.sets} x ${esc(ex.reps)} · repos ${ex.rest}s. ${esc(ex.cue)}</p><div class="exercise-meta">${ex.muscles.map(m=>`<span class="tag">${esc(m)}</span>`).join("")}${ex.caution?`<span class="tag warn">${esc(ex.caution)}</span>`:""}<span class="tag good">${ex.load?ex.load+" kg":_("bw")}</span><button class="chip" style="padding:.2rem .4rem;font-size:.72rem" data-toggle-fav="${ex.id}">${fav?"★":"☆"}</button></div></div><button class="btn ${done?"ghost":""}" data-complete-exercise="${ex.id}" ${done?"disabled":""}><span data-icon="${done?"check":"plus"}"></span>${done?_("cpl"):_("val")}</button></article>`;
 }
 
-function demoSvg(type){const s={press:'<svg viewBox="0 0 100 90"><path class="bar" d="M18 28h64"/><path class="body-line" d="M38 48h28"/><path class="limb rep-arm" d="M42 46 31 28M58 46l11-18"/><path class="limb" d="M38 50 26 70M64 50l14 18"/></svg>',row:'<svg viewBox="0 0 100 90"><path class="bar" d="M28 58h44"/><path class="body-line rep-row" d="M72 32 46 48M46 48 28 68M46 48l10 28M50 44l18 16"/><path class="limb rep-row" d="M54 48 72 58"/></svg>',squat:'<svg viewBox="0 0 100 90"><path class="bar" d="M19 35h62"/><path class="body-line rep-leg" d="M50 19v34M50 53l-18 22M50 53l21 20M50 31l-22 5M50 31l21 5"/></svg>',plank:'<svg viewBox="0 0 100 90"><path class="body-line" d="M22 50h56"/><path class="limb" d="M32 50 24 67M68 50l10 17M42 50l-8 20M58 50l8 20"/></svg>'};return s[type]||s.press;}
+function demoSvg(type){
+  const C='<circle class="fig"',F='<path class="fig"',B='<path class="bar"';
+  const s={
+    // Développé / pompes : le personnage pousse une barre vers le haut.
+    press:`<svg viewBox="0 0 100 100">${C} cx="50" cy="40" r="7"/>${F} d="M50 47 V70"/>${F} d="M50 70 l-10 18 M50 70 l10 18"/><g class="anim-press">${F} d="M50 50 l-15 -12 M50 50 l15 -12"/>${B} d="M30 36 h40"/></g></svg>`,
+    // Rowing / soulevé : buste penché, on tire la charge vers la hanche.
+    row:`<svg viewBox="0 0 100 100">${C} cx="71" cy="34" r="6"/>${F} d="M40 60 L66 39"/>${F} d="M40 60 l-9 27 M40 60 l15 25"/><g class="anim-row">${F} d="M64 43 L57 67"/>${B} d="M49 67 h16"/></g></svg>`,
+    // Squat / fentes : barre sur les épaules, le corps descend puis remonte.
+    squat:`<svg viewBox="0 0 100 100"><g class="anim-squat">${B} d="M30 34 h40"/>${C} cx="50" cy="26" r="7"/>${F} d="M50 33 V60"/>${F} d="M50 39 l-16 -4 M50 39 l16 -4"/>${F} d="M50 60 l-12 28 M50 60 l12 28"/></g></svg>`,
+    // Gainage : maintien horizontal, légère respiration.
+    plank:`<svg viewBox="0 0 100 100"><g class="anim-plank">${C} cx="74" cy="54" r="6"/>${F} d="M26 60 L68 56"/>${F} d="M30 60 V74 M30 74 h9"/>${F} d="M68 56 L86 76"/></g></svg>`,
+    // Traction : suspendu à une barre fixe, le corps monte vers la barre.
+    pull:`<svg viewBox="0 0 100 100">${B} d="M20 16 h60"/><g class="anim-pull">${F} d="M38 16 V33 M62 16 V33"/>${C} cx="50" cy="41" r="7"/>${F} d="M50 48 V72"/>${F} d="M50 72 l-9 16 M50 72 l9 16"/></g></svg>`,
+    // Dips : entre deux barres parallèles, le corps descend puis remonte.
+    dip:`<svg viewBox="0 0 100 100">${B} d="M22 40 h18 M60 40 h18"/><g class="anim-dip">${F} d="M34 40 V52 M66 40 V52"/>${C} cx="50" cy="45" r="6"/>${F} d="M50 51 V70"/>${F} d="M50 70 l-9 13 M50 70 l10 11"/></g></svg>`
+  };
+  return s[type]||s.press;
+}
 
 function inp(n,l,t,v){return `<label>${l}<input name="${n}" type="${t}" value="${esc(String(v))}"></label>`;}
 function sel(n,l,o,v){return `<label>${l}<select name="${n}">${o.map(o=>`<option ${String(o)===String(v)?"selected":""}>${esc(String(o))}</option>`).join("")}</select></label>`;}
@@ -907,6 +964,22 @@ function applyTheme(){document.documentElement.dataset.theme=state.settings.them
 function injectIcons(){document.querySelectorAll("[data-icon]").forEach(e=>{const i=icons[e.dataset.icon];if(i)e.innerHTML=i;});}
 function registerServiceWorker(){if(!("serviceWorker"in navigator)||!location.protocol.startsWith("http"))return;navigator.serviceWorker.register("sw.js").catch(()=>{showToast(_("swf"));});}
 function updateSyncStatus(){const s=document.getElementById("syncStatus");if(!s)return;const o=navigator.onLine;const who=auth.authenticated?(auth.username||_("acc")):_("lo");s.textContent=who+" · "+(o?_("ol"):_("ofl"));s.classList.toggle("online",o);}
+
+function isStandalone(){return window.matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;}
+function showInstallHelp(){
+  if(isStandalone()){showToast(_("instDone"));return;}
+  // Android / Chrome desktop : vraie invite d'installation native.
+  if(installPrompt){installPrompt.prompt();installPrompt.userChoice.finally(()=>{installPrompt=null;});return;}
+  // Sinon (iOS Safari notamment) : instructions adaptées à l'appareil.
+  const ios=/iphone|ipad|ipod/i.test(navigator.userAgent||"");
+  const steps=ios?_("instIos"):_("instOther");
+  if(document.getElementById("installOverlay"))return;
+  const c=document.createElement("div");c.className="scan-overlay";c.id="installOverlay";
+  c.innerHTML=`<div class="scan-modal"><div class="scan-head"><h3>${_("instTitle")}</h3><button class="btn ghost" id="installClose">${_("canc")}</button></div><div style="font-size:.92rem;line-height:1.55">${steps}</div></div>`;
+  document.body.appendChild(c);
+  document.getElementById("installClose").addEventListener("click",()=>c.remove());
+  c.addEventListener("click",e=>{if(e.target===c)c.remove();});
+}
 function showToast(m){const t=document.getElementById("toast");if(!t)return;t.textContent=m;t.classList.add("show");window.clearTimeout(showToast.timer);showToast.timer=window.setTimeout(()=>t.classList.remove("show"),2600);}
 function formatNumber(n){return Number(n||0).toLocaleString("fr-FR");}
 function formatDate(d){return new Intl.DateTimeFormat("fr-FR",{day:"2-digit",month:"short"}).format(new Date(d));}

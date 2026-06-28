@@ -649,49 +649,43 @@ svg {
   overflow: visible;
 }
 
-.limb,
-.bar,
-.body-line {
+.demo svg .fig {
   stroke: var(--text);
-  stroke-width: 5;
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+}
+
+.demo svg circle.fig {
+  fill: color-mix(in srgb, var(--text) 14%, transparent);
+}
+
+.demo svg .bar {
+  stroke: var(--red);
+  stroke-width: 4.5;
   stroke-linecap: round;
   fill: none;
 }
 
-.bar {
-  stroke: var(--red);
-  stroke-width: 4;
+/* Les groupes animés : transform-box pour que l'origine soit relative au dessin. */
+.demo svg g {
+  transform-box: fill-box;
 }
 
-.rep-arm {
-  transform-origin: 48px 34px;
-  animation: press 1.8s ease-in-out infinite;
-}
+.anim-press { transform-origin: 50% 100%; animation: kPress 1.8s ease-in-out infinite; }
+.anim-row   { animation: kRow 1.7s ease-in-out infinite; }
+.anim-squat { transform-origin: 50% 100%; animation: kSquat 2s ease-in-out infinite; }
+.anim-plank { animation: kPlank 2.6s ease-in-out infinite; }
+.anim-pull  { animation: kPull 1.9s ease-in-out infinite; }
+.anim-dip   { animation: kDip 1.8s ease-in-out infinite; }
 
-.rep-leg {
-  transform-origin: 48px 56px;
-  animation: squat 2.1s ease-in-out infinite;
-}
-
-.rep-row {
-  transform-origin: 50px 42px;
-  animation: row 1.9s ease-in-out infinite;
-}
-
-@keyframes press {
-  0%, 100% { transform: rotate(0deg); }
-  50% { transform: rotate(-12deg) translateY(-5px); }
-}
-
-@keyframes squat {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(8px); }
-}
-
-@keyframes row {
-  0%, 100% { transform: translateX(0); }
-  50% { transform: translateX(-8px); }
-}
+@keyframes kPress { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-9px); } }
+@keyframes kRow   { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+@keyframes kSquat { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(.82); } }
+@keyframes kPlank { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+@keyframes kPull  { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-11px); } }
+@keyframes kDip   { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(9px); } }
 
 .split-stat,
 .macro-grid {

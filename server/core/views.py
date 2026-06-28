@@ -157,9 +157,12 @@ def _calculate_nutrition(p):
         weight, height, age = 75.0, 175.0, 30.0
     bmr = 10 * weight + 6.25 * height - 5 * age + sex_adj
     cal = round((bmr * act_f.get(p.get("activity"), 1.45) + goal_adj.get(p.get("goal"), 0)) / 10) * 10
-    pf = 2 if p.get("goal") in ("Prise de masse", "Sèche", "Recomposition corporelle", "Force") else 1.7
+    goal_prot = 2 if p.get("goal") in ("Prise de masse", "Sèche", "Recomposition corporelle", "Force") else 1.7
+    lvl_prot = 0.2 if p.get("level") == "Avancé" else (-0.1 if p.get("level") == "Débutant" else 0)
+    pf = goal_prot + lvl_prot
+    fat_factor = 1 if p.get("sex") == "Femme" else 0.9
     pro = round(weight * pf)
-    fat = round(weight * 0.9)
+    fat = round(weight * fat_factor)
     car = max(80, round((cal - pro * 4 - fat * 9) / 4))
     return {"calories": cal, "protein": pro, "carbs": car, "fat": fat}
 
