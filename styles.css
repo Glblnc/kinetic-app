@@ -649,23 +649,39 @@ svg {
   overflow: visible;
 }
 
-.demo svg .fig {
+.demo svg .body {
+  fill: var(--text);
+}
+
+.demo svg .limb {
+  fill: none;
   stroke: var(--text);
+  stroke-width: 7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.demo svg .bar2 {
+  fill: none;
+  stroke: #cdd2da;
+  stroke-width: 3.5;
+  stroke-linecap: round;
+}
+
+.demo svg .plate {
+  fill: var(--red);
+}
+
+.demo svg .rig {
+  fill: none;
+  stroke: #828791;
   stroke-width: 4;
   stroke-linecap: round;
   stroke-linejoin: round;
-  fill: none;
 }
 
-.demo svg circle.fig {
-  fill: color-mix(in srgb, var(--text) 14%, transparent);
-}
-
-.demo svg .bar {
-  stroke: var(--red);
-  stroke-width: 4.5;
-  stroke-linecap: round;
-  fill: none;
+.demo svg .bench {
+  fill: #6b7280;
 }
 
 /* Les groupes animés : transform-box pour que l'origine soit relative au dessin. */

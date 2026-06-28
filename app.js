@@ -736,20 +736,21 @@ function exerciseCard(ex) {
 }
 
 function demoSvg(type){
-  const C='<circle class="fig"',F='<path class="fig"',B='<path class="bar"';
+  // Personnages « pleins » (tête + corps épais) avec vrai matériel illustré
+  // (barres + disques, banc, cage de traction, station de dips). Animés en CSS.
   const s={
-    // Développé / pompes : le personnage pousse une barre vers le haut.
-    press:`<svg viewBox="0 0 100 100">${C} cx="50" cy="40" r="7"/>${F} d="M50 47 V70"/>${F} d="M50 70 l-10 18 M50 70 l10 18"/><g class="anim-press">${F} d="M50 50 l-15 -12 M50 50 l15 -12"/>${B} d="M30 36 h40"/></g></svg>`,
-    // Rowing / soulevé : buste penché, on tire la charge vers la hanche.
-    row:`<svg viewBox="0 0 100 100">${C} cx="71" cy="34" r="6"/>${F} d="M40 60 L66 39"/>${F} d="M40 60 l-9 27 M40 60 l15 25"/><g class="anim-row">${F} d="M64 43 L57 67"/>${B} d="M49 67 h16"/></g></svg>`,
-    // Squat / fentes : barre sur les épaules, le corps descend puis remonte.
-    squat:`<svg viewBox="0 0 100 100"><g class="anim-squat">${B} d="M30 34 h40"/>${C} cx="50" cy="26" r="7"/>${F} d="M50 33 V60"/>${F} d="M50 39 l-16 -4 M50 39 l16 -4"/>${F} d="M50 60 l-12 28 M50 60 l12 28"/></g></svg>`,
-    // Gainage : maintien horizontal, légère respiration.
-    plank:`<svg viewBox="0 0 100 100"><g class="anim-plank">${C} cx="74" cy="54" r="6"/>${F} d="M26 60 L68 56"/>${F} d="M30 60 V74 M30 74 h9"/>${F} d="M68 56 L86 76"/></g></svg>`,
-    // Traction : suspendu à une barre fixe, le corps monte vers la barre.
-    pull:`<svg viewBox="0 0 100 100">${B} d="M20 16 h60"/><g class="anim-pull">${F} d="M38 16 V33 M62 16 V33"/>${C} cx="50" cy="41" r="7"/>${F} d="M50 48 V72"/>${F} d="M50 72 l-9 16 M50 72 l9 16"/></g></svg>`,
-    // Dips : entre deux barres parallèles, le corps descend puis remonte.
-    dip:`<svg viewBox="0 0 100 100">${B} d="M22 40 h18 M60 40 h18"/><g class="anim-dip">${F} d="M34 40 V52 M66 40 V52"/>${C} cx="50" cy="45" r="6"/>${F} d="M50 51 V70"/>${F} d="M50 70 l-9 13 M50 70 l10 11"/></g></svg>`
+    // Développé militaire : le pratiquant pousse une barre chargée au-dessus de la tête.
+    press:'<svg viewBox="0 0 100 100"><path class="rig" d="M16 90 H84"/><circle class="body" cx="50" cy="46" r="6"/><path class="limb" d="M50 52 V70"/><path class="limb" d="M50 70 L42 88 M50 70 L58 88"/><g class="anim-press"><path class="limb" d="M50 54 L40 40 M50 54 L60 40"/><rect class="plate" x="26" y="32" width="6" height="14" rx="2"/><rect class="plate" x="68" y="32" width="6" height="14" rx="2"/><path class="bar2" d="M24 39 H76"/></g></svg>',
+    // Rowing : buste penché, une main en appui sur le banc, on tire l\'haltère vers la hanche.
+    row:'<svg viewBox="0 0 100 100"><rect class="bench" x="16" y="66" width="40" height="6" rx="2"/><path class="rig" d="M22 72 V86 M50 72 V86"/><circle class="body" cx="70" cy="40" r="6"/><path class="limb" d="M40 58 L66 44"/><path class="limb" d="M46 54 L40 66"/><path class="limb" d="M40 58 L33 82 M40 58 L52 80"/><g class="anim-row"><path class="limb" d="M64 46 L60 64"/><rect class="plate" x="53" y="61" width="14" height="6" rx="3"/></g></svg>',
+    // Squat : barre chargée sur les épaules, le corps descend puis remonte.
+    squat:'<svg viewBox="0 0 100 100"><path class="rig" d="M16 90 H84"/><g class="anim-squat"><rect class="plate" x="22" y="24" width="6" height="14" rx="2"/><rect class="plate" x="72" y="24" width="6" height="14" rx="2"/><path class="bar2" d="M20 31 H80"/><circle class="body" cx="50" cy="24" r="6"/><path class="limb" d="M50 30 V50"/><path class="limb" d="M50 34 L34 31 M50 34 L66 31"/><path class="limb" d="M50 50 L41 68 L43 86 M50 50 L59 68 L57 86"/></g></svg>',
+    // Gainage : appui sur les avant-bras, corps gainé, légère respiration.
+    plank:'<svg viewBox="0 0 100 100"><path class="rig" d="M14 88 H86"/><g class="anim-plank"><circle class="body" cx="74" cy="52" r="6"/><path class="limb" d="M30 60 L68 55"/><path class="limb" d="M30 60 V74 M30 74 H41"/><path class="limb" d="M68 55 L84 78"/></g></svg>',
+    // Traction : suspendu à la cage, le corps monte vers la barre.
+    pull:'<svg viewBox="0 0 100 100"><path class="rig" d="M22 14 H78 M27 14 V32 M73 14 V32"/><g class="anim-pull"><path class="limb" d="M40 16 V32 M60 16 V32"/><circle class="body" cx="50" cy="40" r="6"/><path class="limb" d="M50 46 V66"/><path class="limb" d="M50 66 L43 82 M50 66 L57 82"/></g></svg>',
+    // Dips : sur la station à barres parallèles, le corps descend puis remonte.
+    dip:'<svg viewBox="0 0 100 100"><path class="rig" d="M22 40 H44 M56 40 H78 M28 40 V74 M72 40 V74"/><g class="anim-dip"><path class="limb" d="M36 40 V52 M64 40 V52"/><circle class="body" cx="50" cy="45" r="6"/><path class="limb" d="M50 51 V68"/><path class="limb" d="M50 68 L43 80 M50 68 L58 78"/></g></svg>'
   };
   return s[type]||s.press;
 }
