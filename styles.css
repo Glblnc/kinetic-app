@@ -1401,3 +1401,52 @@ svg {
   width: 1.7rem;
   height: 1.7rem;
 }
+
+/* Régularité : streak + calendrier */
+.streak-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .6rem;
+  margin: .2rem 0 .9rem;
+}
+.cal-head,
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+  max-width: 360px;
+}
+.cal-head {
+  margin-bottom: 5px;
+}
+.cal-head span {
+  text-align: center;
+  font-size: .68rem;
+  color: var(--muted);
+}
+.cal-cell {
+  aspect-ratio: 1 / 1;
+  border-radius: 4px;
+  background: var(--surface-2, rgba(255, 255, 255, .06));
+}
+.cal-cell.lvl-1 { background: rgba(229, 57, 53, .45); }
+.cal-cell.lvl-2 { background: var(--red, #e53935); }
+.cal-cell.today {
+  outline: 2px solid var(--text, #fff);
+  outline-offset: 1px;
+}
+.cal-cell.future { opacity: .35; }
+.cal-legend {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 5px;
+  margin-top: .7rem;
+  font-size: .68rem;
+  color: var(--muted);
+}
+.cal-legend i {
+  width: 13px;
+  height: 13px;
+  display: inline-block;
+}

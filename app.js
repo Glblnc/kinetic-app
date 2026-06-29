@@ -75,7 +75,8 @@ const _t = {
     deloadTitle:"Semaine de décharge",deloadActive:"Décharge active",deloadActiveMsg:"Charges réduites de 10 % cette semaine pour récupérer.",deloadRecMsg:"Tes performances stagnent : une semaine de décharge (charges −10 %) peut relancer la progression.",deloadBtn:"Activer une semaine de décharge",deloadSuggest:"Plateau détecté — pense à une semaine de décharge.",deloadOn:"Semaine de décharge activée",plateauOn:"Plateau sur :",
     progPhotos:"Photos de progression",addPhoto:"Ajouter",photosLocal:"Les photos restent sur cet appareil.",photoAdded:"Photo ajoutée",photoFull:"Stockage des photos plein",
     exProgress:"Progression par exercice",noData:"Pas encore de données",
-    water:"Hydratation",waterGoalLbl:"Objectif",meal:"Repas",grams:"Quantité (g)"
+    water:"Hydratation",waterGoalLbl:"Objectif",meal:"Repas",grams:"Quantité (g)",
+    regTitle:"Régularité",regSub:"Ta constance jour après jour",curStreak:"Série en cours",bestStreak:"Record",daysShort:"j",dayS:"jour",daysPl:"jours",calLess:"Moins",calMore:"Plus"
   },
   en: {
     app:"Kinetic",tag:"AI Fitness Coach",h:"Home",p:"Profile",t:"Training",n:"Nutrition",g:"Progress",c:"AI Coach",
@@ -150,7 +151,8 @@ const _t = {
     deloadTitle:"Deload week",deloadActive:"Deload active",deloadActiveMsg:"Loads reduced by 10% this week to recover.",deloadRecMsg:"Your performance is stalling: a deload week (loads −10%) can restart progress.",deloadBtn:"Start a deload week",deloadSuggest:"Plateau detected — consider a deload week.",deloadOn:"Deload week started",plateauOn:"Plateau on:",
     progPhotos:"Progress photos",addPhoto:"Add",photosLocal:"Photos stay on this device.",photoAdded:"Photo added",photoFull:"Photo storage full",
     exProgress:"Per-exercise progress",noData:"No data yet",
-    water:"Water",waterGoalLbl:"Goal",meal:"Meal",grams:"Amount (g)"
+    water:"Water",waterGoalLbl:"Goal",meal:"Meal",grams:"Amount (g)",
+    regTitle:"Consistency",regSub:"Your day-by-day streak",curStreak:"Current streak",bestStreak:"Best",daysShort:"d",dayS:"day",daysPl:"days",calLess:"Less",calMore:"More"
   }
 };
 
@@ -270,7 +272,7 @@ const defaultState = {
   onboardingDone:false,
   settings:{theme:"dark",language:"fr",notifications:false,reminderTime:"18:00"},
   profile:{name:"",age:30,sex:"Homme",height:175,weight:75,level:"Intermédiaire",goal:"Recomposition corporelle",activity:"Modérée",sessions:3,equipment:["Haltères"],limitations:"",foodPreferences:""},
-  plan:null,workouts:[],foods:[],measures:[],chat:[],completedExercises:[],achievements:[],favorites:[],overloadCount:0,water:{},deloadUntil:null
+  plan:null,workouts:[],foods:[],measures:[],chat:[],completedExercises:[],achievements:[],favorites:[],overloadCount:0,water:{},deloadUntil:null,bestStreak:0
 };
 
 let state = loadState();
@@ -516,6 +518,52 @@ function renderOnboarding() {
   rs();
 }
 
+// ===== Régularité : séries (streak) + calendrier =====
+function isoStep(d){return d.toISOString().slice(0,10);}
+function activeDateSet(){
+  const s=new Set();
+  (state.workouts||[]).forEach(w=>s.add(w.date));
+  (state.foods||[]).forEach(f=>s.add(f.date));
+  (state.checkins||[]).forEach(c=>s.add(c.date));
+  Object.keys(state.water||{}).forEach(d=>{if(state.water[d]>0)s.add(d);});
+  return s;
+}
+function hasWorkoutOn(date){return (state.workouts||[]).some(w=>w.date===date);}
+function currentStreak(){
+  const set=activeDateSet();let streak=0;const d=new Date(todayISO());
+  if(!set.has(isoStep(d))){d.setUTCDate(d.getUTCDate()-1);if(!set.has(isoStep(d)))return 0;}
+  while(set.has(isoStep(d))){streak++;d.setUTCDate(d.getUTCDate()-1);}
+  return streak;
+}
+function longestStreak(){
+  const dates=[...activeDateSet()].sort();if(!dates.length)return 0;
+  let best=1,run=1;
+  for(let i=1;i<dates.length;i++){const p=new Date(dates[i-1]);p.setUTCDate(p.getUTCDate()+1);run=isoStep(p)===dates[i]?run+1:1;if(run>best)best=run;}
+  return best;
+}
+function streakCalendar(){
+  const set=activeDateSet(),today=todayISO(),t=new Date(today);
+  const dow=(t.getUTCDay()+6)%7,weekStart=new Date(t);weekStart.setUTCDate(t.getUTCDate()-dow);
+  const WEEKS=6,start=new Date(weekStart);start.setUTCDate(weekStart.getUTCDate()-(WEEKS-1)*7);
+  let cells="";
+  for(let w=0;w<WEEKS;w++)for(let dd=0;dd<7;dd++){
+    const c=new Date(start);c.setUTCDate(start.getUTCDate()+w*7+dd);const ds=isoStep(c),future=ds>today;
+    const lvl=(!future&&set.has(ds))?(hasWorkoutOn(ds)?2:1):0;
+    cells+=`<div class="cal-cell lvl-${lvl}${ds===today?" today":""}${future?" future":""}" title="${esc(formatDate(ds))}"></div>`;
+  }
+  const days=["L","M","M","J","V","S","D"];
+  return `<div class="cal-head">${days.map(d=>`<span>${d}</span>`).join("")}</div><div class="cal-grid">${cells}</div>`;
+}
+function streakCard(){
+  const cur=currentStreak(),best=Math.max(longestStreak(),state.bestStreak||0);
+  state.bestStreak=best;
+  return `<div class="panel streak-panel"><div class="panel-head"><div><h2>${_("regTitle")}</h2><p>${_("regSub")}</p></div><span class="tag ${cur>0?"good":""}">🔥 ${cur} ${_("daysShort")}</span></div>
+    <div class="streak-stats"><div class="mini-metric"><span>${_("curStreak")}</span><strong>🔥 ${cur} ${cur>1?_("daysPl"):_("dayS")}</strong></div><div class="mini-metric"><span>${_("bestStreak")}</span><strong>🏆 ${best} ${best>1?_("daysPl"):_("dayS")}</strong></div></div>
+    ${streakCalendar()}
+    <div class="cal-legend"><span>${_("calLess")}</span><i class="cal-cell lvl-0"></i><i class="cal-cell lvl-1"></i><i class="cal-cell lvl-2"></i><span>${_("calMore")}</span></div>
+  </div>`;
+}
+
 function renderDashboard() {
   const targets=calculateNutrition(state.profile),totals=todaysFoodTotals(),week=weeklyWorkoutStats(),next=nextWorkout();
   const adherence=Math.min(100,Math.round((week.sessions/Math.max(1,state.profile.sessions))*100));
@@ -523,6 +571,7 @@ function renderDashboard() {
     <div class="grid">
       <div class="hero-band"><div><h2>${state.profile.name?_("wel")+" "+esc(state.profile.name)+" — ":""}Kinetic adapte ton plan</h2><p>${state.profile.sessions} séances/sem, ${_(state.profile.goal).toLowerCase()}, ${targets.calories} kcal.</p></div></div>
       <div class="grid cols-4">${metric(_("seL"),week.sessions+"/"+state.profile.sessions,adherence+"% "+_("adh"))}${metric(_("vol"),formatNumber(Math.round(week.volume/100)/10)+" t",_("ltr"))}${metric(_("cal"),formatNumber(totals.calories),Math.max(0,targets.calories-totals.calories)+" "+_("rem"))}${metric(_("rec"),recoveryScore()+"%",recoveryLabel())}</div>
+      ${streakCard()}
       <div class="grid cols-2">
         <div class="panel"><div class="panel-head"><div><h2>${_("rs")}</h2><p>${esc(next.label)} · ${esc(next.focus)}</p></div><span class="tag warn">${next.duration} min</span></div><div class="exercise-list">${next.exercises.slice(0,3).map(exerciseCard).join("")}</div></div>
         <div class="panel"><div class="panel-head"><div><h2>${_("dt")}</h2><p>${_("la")}</p></div><span class="tag good">${_("stb")}</span></div><ul class="summary-list"><li><span>${_("ld")}</span><strong>${trainingAdvice().load}</strong></li><li><span>${_("nul")}</span><strong>${trainingAdvice().nutrition}</strong></li><li><span>${_("rl")}</span><strong>${trainingAdvice().recovery}</strong></li><li><span>${_("att")}</span><strong>${esc(limitationShort())}</strong></li></ul><button class="btn primary block" data-view-target="coach" style="margin-top:.9rem"><span data-icon="message"></span>${_("ac")}</button></div>
