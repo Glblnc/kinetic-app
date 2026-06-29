@@ -732,27 +732,58 @@ function calculateNutrition(profile){
 
 function exerciseCard(ex) {
   const done=state.completedExercises.includes(todayISO()+"-"+ex.id),fav=state.favorites.includes(ex.id);
-  return `<article class="exercise"><div class="demo" aria-hidden="true">${demoSvg(ex.demo)}</div><div><h3>${esc(ex.name)} ${fav?"★":""}</h3><p>${ex.sets} x ${esc(ex.reps)} · repos ${ex.rest}s. ${esc(ex.cue)}</p><div class="exercise-meta">${ex.muscles.map(m=>`<span class="tag">${esc(m)}</span>`).join("")}${ex.caution?`<span class="tag warn">${esc(ex.caution)}</span>`:""}<span class="tag good">${ex.load?ex.load+" kg":_("bw")}</span><button class="chip" style="padding:.2rem .4rem;font-size:.72rem" data-toggle-fav="${ex.id}">${fav?"★":"☆"}</button></div></div><button class="btn ${done?"ghost":""}" data-complete-exercise="${ex.id}" ${done?"disabled":""}><span data-icon="${done?"check":"plus"}"></span>${done?_("cpl"):_("val")}</button></article>`;
+  return `<article class="exercise"><div class="demo" aria-hidden="true">${demoSvg(ex.id)}</div><div><h3>${esc(ex.name)} ${fav?"★":""}</h3><p>${ex.sets} x ${esc(ex.reps)} · repos ${ex.rest}s. ${esc(ex.cue)}</p><div class="exercise-meta">${ex.muscles.map(m=>`<span class="tag">${esc(m)}</span>`).join("")}${ex.caution?`<span class="tag warn">${esc(ex.caution)}</span>`:""}<span class="tag good">${ex.load?ex.load+" kg":_("bw")}</span><button class="chip" style="padding:.2rem .4rem;font-size:.72rem" data-toggle-fav="${ex.id}">${fav?"★":"☆"}</button></div></div><button class="btn ${done?"ghost":""}" data-complete-exercise="${ex.id}" ${done?"disabled":""}><span data-icon="${done?"check":"plus"}"></span>${done?_("cpl"):_("val")}</button></article>`;
 }
 
-function demoSvg(type){
-  // Personnages « pleins » (tête + corps épais) avec vrai matériel illustré
-  // (barres + disques, banc, cage de traction, station de dips). Animés en CSS.
-  const s={
-    // Développé militaire : le pratiquant pousse une barre chargée au-dessus de la tête.
-    press:'<svg viewBox="0 0 100 100"><path class="rig" d="M16 90 H84"/><circle class="body" cx="50" cy="46" r="6"/><path class="limb" d="M50 52 V70"/><path class="limb" d="M50 70 L42 88 M50 70 L58 88"/><g class="anim-press"><path class="limb" d="M50 54 L40 40 M50 54 L60 40"/><rect class="plate" x="26" y="32" width="6" height="14" rx="2"/><rect class="plate" x="68" y="32" width="6" height="14" rx="2"/><path class="bar2" d="M24 39 H76"/></g></svg>',
-    // Rowing : buste penché, une main en appui sur le banc, on tire l\'haltère vers la hanche.
-    row:'<svg viewBox="0 0 100 100"><rect class="bench" x="16" y="66" width="40" height="6" rx="2"/><path class="rig" d="M22 72 V86 M50 72 V86"/><circle class="body" cx="70" cy="40" r="6"/><path class="limb" d="M40 58 L66 44"/><path class="limb" d="M46 54 L40 66"/><path class="limb" d="M40 58 L33 82 M40 58 L52 80"/><g class="anim-row"><path class="limb" d="M64 46 L60 64"/><rect class="plate" x="53" y="61" width="14" height="6" rx="3"/></g></svg>',
-    // Squat : barre chargée sur les épaules, le corps descend puis remonte.
-    squat:'<svg viewBox="0 0 100 100"><path class="rig" d="M16 90 H84"/><g class="anim-squat"><rect class="plate" x="22" y="24" width="6" height="14" rx="2"/><rect class="plate" x="72" y="24" width="6" height="14" rx="2"/><path class="bar2" d="M20 31 H80"/><circle class="body" cx="50" cy="24" r="6"/><path class="limb" d="M50 30 V50"/><path class="limb" d="M50 34 L34 31 M50 34 L66 31"/><path class="limb" d="M50 50 L41 68 L43 86 M50 50 L59 68 L57 86"/></g></svg>',
-    // Gainage : appui sur les avant-bras, corps gainé, légère respiration.
-    plank:'<svg viewBox="0 0 100 100"><path class="rig" d="M14 88 H86"/><g class="anim-plank"><circle class="body" cx="74" cy="52" r="6"/><path class="limb" d="M30 60 L68 55"/><path class="limb" d="M30 60 V74 M30 74 H41"/><path class="limb" d="M68 55 L84 78"/></g></svg>',
-    // Traction : suspendu à la cage, le corps monte vers la barre.
-    pull:'<svg viewBox="0 0 100 100"><path class="rig" d="M22 14 H78 M27 14 V32 M73 14 V32"/><g class="anim-pull"><path class="limb" d="M40 16 V32 M60 16 V32"/><circle class="body" cx="50" cy="40" r="6"/><path class="limb" d="M50 46 V66"/><path class="limb" d="M50 66 L43 82 M50 66 L57 82"/></g></svg>',
-    // Dips : sur la station à barres parallèles, le corps descend puis remonte.
-    dip:'<svg viewBox="0 0 100 100"><path class="rig" d="M22 40 H44 M56 40 H78 M28 40 V74 M72 40 V74"/><g class="anim-dip"><path class="limb" d="M36 40 V52 M64 40 V52"/><circle class="body" cx="50" cy="45" r="6"/><path class="limb" d="M50 51 V68"/><path class="limb" d="M50 68 L43 80 M50 68 L58 78"/></g></svg>'
+function demoSvg(id){
+  // Une animation propre à chaque exercice : personnage « plein » + vrai matériel,
+  // mouvement fidèle au nom (couché, debout, suspendu, hanche, etc.). Animé en CSS.
+  const ground='<path class="rig" d="M16 90 H84"/>';
+  // Développé militaire : debout, pousse la barre au-dessus de la tête.
+  const press='<svg viewBox="0 0 100 100">'+ground+'<circle class="body" cx="50" cy="46" r="6"/><path class="limb" d="M50 52 V70"/><path class="limb" d="M50 70 L42 88 M50 70 L58 88"/><g class="anim-press"><path class="limb" d="M50 54 L40 40 M50 54 L60 40"/><rect class="plate" x="26" y="32" width="6" height="14" rx="2"/><rect class="plate" x="68" y="32" width="6" height="14" rx="2"/><path class="bar2" d="M24 39 H76"/></g></svg>';
+  // Développé couché : allongé sur le banc, pousse la barre vers le haut.
+  const bench='<svg viewBox="0 0 100 100"><path class="rig" d="M12 88 H88"/><rect class="bench" x="14" y="60" width="50" height="6" rx="2"/><path class="rig" d="M20 66 V82 M58 66 V82"/><circle class="body" cx="20" cy="55" r="5"/><path class="limb" d="M25 57 H50"/><path class="limb" d="M50 57 L60 67 L57 82 M50 57 L62 69 L66 82"/><g class="anim-press"><path class="limb" d="M33 56 L30 42 M33 56 L44 42"/><rect class="plate" x="20" y="36" width="5" height="12" rx="2"/><rect class="plate" x="47" y="36" width="5" height="12" rx="2"/><path class="bar2" d="M18 42 H54"/></g></svg>';
+  // Rowing : buste penché, une main en appui sur le banc, tire l\'haltère vers la hanche.
+  const row='<svg viewBox="0 0 100 100"><rect class="bench" x="16" y="66" width="40" height="6" rx="2"/><path class="rig" d="M22 72 V86 M50 72 V86"/><circle class="body" cx="70" cy="40" r="6"/><path class="limb" d="M40 58 L66 44"/><path class="limb" d="M46 54 L40 66"/><path class="limb" d="M40 58 L33 82 M40 58 L52 80"/><g class="anim-row"><path class="limb" d="M64 46 L60 64"/><rect class="plate" x="53" y="61" width="14" height="6" rx="3"/></g></svg>';
+  // Squat barre : barre chargée sur les épaules, descend puis remonte.
+  const squat='<svg viewBox="0 0 100 100">'+ground+'<g class="anim-squat"><rect class="plate" x="22" y="24" width="6" height="14" rx="2"/><rect class="plate" x="72" y="24" width="6" height="14" rx="2"/><path class="bar2" d="M20 31 H80"/><circle class="body" cx="50" cy="24" r="6"/><path class="limb" d="M50 30 V50"/><path class="limb" d="M50 34 L34 31 M50 34 L66 31"/><path class="limb" d="M50 50 L41 68 L43 86 M50 50 L59 68 L57 86"/></g></svg>';
+  // Squat goblet : haltère tenu contre la poitrine, descend puis remonte.
+  const goblet='<svg viewBox="0 0 100 100">'+ground+'<g class="anim-squat"><circle class="body" cx="50" cy="24" r="6"/><path class="limb" d="M50 30 V50"/><path class="limb" d="M50 36 L43 43 M50 36 L57 43"/><rect class="plate" x="44" y="39" width="12" height="9" rx="2"/><path class="limb" d="M50 50 L41 68 L43 86 M50 50 L59 68 L57 86"/></g></svg>';
+  // Soulevé de terre roumain : jambes tendues, charnière de hanche, barre le long des cuisses.
+  const hinge='<svg viewBox="0 0 100 100">'+ground+'<path class="limb" d="M50 56 L46 88 M50 56 L54 88"/><g class="anim-hinge"><circle class="body" cx="50" cy="26" r="6"/><path class="limb" d="M50 32 L50 56"/><path class="limb" d="M50 40 L47 58 M50 40 L53 58"/><rect class="plate" x="41" y="55" width="5" height="9" rx="2"/><rect class="plate" x="54" y="55" width="5" height="9" rx="2"/><path class="bar2" d="M39 59 H61"/></g></svg>';
+  // Soulevé de terre : barre au sol, on se redresse jusqu\'à debout.
+  const deadlift='<svg viewBox="0 0 100 100">'+ground+'<path class="limb" d="M50 58 L45 88 M50 58 L55 88"/><g class="anim-deadlift"><circle class="body" cx="50" cy="28" r="6"/><path class="limb" d="M50 34 L50 58"/><path class="limb" d="M50 42 L47 64 M50 42 L53 64"/><rect class="plate" x="37" y="58" width="7" height="14" rx="2"/><rect class="plate" x="56" y="58" width="7" height="14" rx="2"/><path class="bar2" d="M35 65 H65"/></g></svg>';
+  // Fentes arrière : une jambe devant, une derrière, le corps descend.
+  const lunge='<svg viewBox="0 0 100 100"><path class="rig" d="M14 90 H86"/><g class="anim-lunge"><circle class="body" cx="50" cy="30" r="6"/><path class="limb" d="M50 36 V58"/><path class="limb" d="M50 40 L42 50 M50 40 L58 50"/><rect class="plate" x="37" y="48" width="6" height="6" rx="2"/><rect class="plate" x="57" y="48" width="6" height="6" rx="2"/><path class="limb" d="M50 58 L40 72 L40 88"/><path class="limb" d="M50 58 L62 74 L70 86"/></g></svg>';
+  // Gainage : appui sur les avant-bras, corps gainé.
+  const plank='<svg viewBox="0 0 100 100"><path class="rig" d="M14 88 H86"/><g class="anim-plank"><circle class="body" cx="74" cy="52" r="6"/><path class="limb" d="M30 60 L68 55"/><path class="limb" d="M30 60 V74 M30 74 H41"/><path class="limb" d="M68 55 L84 78"/></g></svg>';
+  // Traction : suspendu à la cage, le corps monte vers la barre.
+  const pull='<svg viewBox="0 0 100 100"><path class="rig" d="M22 14 H78 M27 14 V32 M73 14 V32"/><g class="anim-pull"><path class="limb" d="M40 16 V32 M60 16 V32"/><circle class="body" cx="50" cy="40" r="6"/><path class="limb" d="M50 46 V66"/><path class="limb" d="M50 66 L43 82 M50 66 L57 82"/></g></svg>';
+  // Relevé de jambes suspendu : corps fixe à la barre, les jambes montent.
+  const hangleg='<svg viewBox="0 0 100 100"><path class="rig" d="M22 14 H78 M27 14 V30 M73 14 V30"/><path class="limb" d="M40 16 V32 M60 16 V32"/><circle class="body" cx="50" cy="40" r="6"/><path class="limb" d="M50 46 V62"/><g class="anim-hangleg"><path class="limb" d="M50 62 L46 82 M50 62 L54 82"/></g></svg>';
+  // Dips : station à barres parallèles, descend puis remonte.
+  const dip='<svg viewBox="0 0 100 100"><path class="rig" d="M22 40 H44 M56 40 H78 M28 40 V74 M72 40 V74"/><g class="anim-dip"><path class="limb" d="M36 40 V52 M64 40 V52"/><circle class="body" cx="50" cy="45" r="6"/><path class="limb" d="M50 51 V68"/><path class="limb" d="M50 68 L43 80 M50 68 L58 78"/></g></svg>';
+  // Curl biceps : bras le long du corps, l\'avant-bras remonte l\'haltère.
+  const curl='<svg viewBox="0 0 100 100">'+ground+'<circle class="body" cx="50" cy="28" r="6"/><path class="limb" d="M50 34 V60"/><path class="limb" d="M50 60 L44 88 M50 60 L56 88"/><path class="limb" d="M50 38 L60 52"/><g class="anim-curl"><path class="limb" d="M60 52 L60 70"/><rect class="plate" x="54" y="68" width="12" height="6" rx="3"/></g></svg>';
+  // Extension triceps : bras à la verticale, l\'avant-bras se déplie vers le haut.
+  const triceps='<svg viewBox="0 0 100 100">'+ground+'<circle class="body" cx="50" cy="42" r="6"/><path class="limb" d="M50 48 V66"/><path class="limb" d="M50 66 L44 88 M50 66 L56 88"/><path class="limb" d="M50 48 L50 30"/><g class="anim-triceps"><path class="limb" d="M50 30 L50 14"/><rect class="plate" x="44" y="10" width="12" height="6" rx="3"/></g></svg>';
+  // Élévations latérales : vue de face, les bras montent sur les côtés.
+  const latraise='<svg viewBox="0 0 100 100">'+ground+'<circle class="body" cx="50" cy="28" r="6"/><path class="limb" d="M50 34 V60"/><path class="limb" d="M50 60 L43 86 M50 60 L57 86"/><g class="anim-latl"><path class="limb" d="M50 40 L38 56"/><rect class="plate" x="33" y="54" width="9" height="6" rx="3"/></g><g class="anim-latr"><path class="limb" d="M50 40 L62 56"/><rect class="plate" x="58" y="54" width="9" height="6" rx="3"/></g></svg>';
+  // Pompes : au sol, le corps monte et descend sur les bras.
+  const pushup='<svg viewBox="0 0 100 100"><path class="rig" d="M12 86 H88"/><g class="anim-pushup"><circle class="body" cx="24" cy="56" r="5"/><path class="limb" d="M29 58 L70 60"/><path class="limb" d="M70 60 L84 78"/><path class="limb" d="M40 59 V78 M58 60 V78"/></g></svg>';
+  // Relevé de jambes au sol : allongé, les jambes montent.
+  const legraise='<svg viewBox="0 0 100 100"><path class="rig" d="M12 86 H88"/><circle class="body" cx="22" cy="74" r="5"/><path class="limb" d="M27 76 H52"/><path class="limb" d="M30 76 L24 66 M30 76 L36 66"/><g class="anim-legraise"><path class="limb" d="M52 76 L72 74 M52 76 L72 80"/></g></svg>';
+  // Hip thrust : haut du dos sur le banc, les hanches montent.
+  const hipthrust='<svg viewBox="0 0 100 100"><path class="rig" d="M12 88 H88"/><rect class="bench" x="12" y="48" width="22" height="6" rx="2"/><path class="rig" d="M16 54 V70 M30 54 V70"/><circle class="body" cx="20" cy="44" r="5"/><path class="limb" d="M58 62 L66 78 M58 62 L74 78"/><g class="anim-hipthrust"><path class="limb" d="M25 50 L58 62"/><rect class="plate" x="47" y="55" width="5" height="11" rx="2"/><rect class="plate" x="60" y="55" width="5" height="11" rx="2"/><path class="bar2" d="M45 60 H67"/></g></svg>';
+  // Mollets debout : le corps s\'élève sur la pointe des pieds.
+  const calf='<svg viewBox="0 0 100 100">'+ground+'<g class="anim-calf"><circle class="body" cx="50" cy="28" r="6"/><path class="limb" d="M50 34 V58"/><path class="limb" d="M50 40 L42 50 M50 40 L58 50"/><rect class="plate" x="36" y="48" width="6" height="6" rx="2"/><rect class="plate" x="58" y="48" width="6" height="6" rx="2"/><path class="limb" d="M50 58 L45 84 M50 58 L55 84"/></g></svg>';
+  const map={
+    bench:bench,"db-press":bench,row:row,"goblet-squat":goblet,rdl:hinge,ohp:press,
+    lunge:lunge,plank:plank,pullup:pull,chinup:pull,"hang-leg-raise":hangleg,
+    squat:squat,deadlift:deadlift,dips:dip,"dips-triceps":dip,curl:curl,ext:triceps,
+    "lat-raise":latraise,pushup:pushup,"leg-raise":legraise,"hip-thrust":hipthrust,"calf-raise":calf
   };
-  return s[type]||s.press;
+  return map[id]||squat;
 }
 
 function inp(n,l,t,v){return `<label>${l}<input name="${n}" type="${t}" value="${esc(String(v))}"></label>`;}

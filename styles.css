@@ -684,24 +684,49 @@ svg {
   fill: #6b7280;
 }
 
-/* Les groupes animés : transform-box pour que l'origine soit relative au dessin. */
-.demo svg g {
-  transform-box: fill-box;
-}
+/* Une animation par mouvement.
+   - Translations : pas besoin d'origine.
+   - Mise à l'échelle (squat) : origine en bas.
+   - Rotations : origine en coordonnées du viewBox (transform-box: view-box). */
+.anim-press   { animation: kPress 1.8s ease-in-out infinite; }
+.anim-row     { animation: kRow 1.7s ease-in-out infinite; }
+.anim-pull    { animation: kPull 1.9s ease-in-out infinite; }
+.anim-dip     { animation: kDip 1.8s ease-in-out infinite; }
+.anim-plank   { animation: kPlank 2.6s ease-in-out infinite; }
+.anim-lunge   { animation: kLunge 2s ease-in-out infinite; }
+.anim-pushup  { animation: kPushup 1.9s ease-in-out infinite; }
+.anim-calf    { animation: kCalf 1.5s ease-in-out infinite; }
+.anim-hipthrust { animation: kHip 2s ease-in-out infinite; }
 
-.anim-press { transform-origin: 50% 100%; animation: kPress 1.8s ease-in-out infinite; }
-.anim-row   { animation: kRow 1.7s ease-in-out infinite; }
-.anim-squat { transform-origin: 50% 100%; animation: kSquat 2s ease-in-out infinite; }
-.anim-plank { animation: kPlank 2.6s ease-in-out infinite; }
-.anim-pull  { animation: kPull 1.9s ease-in-out infinite; }
-.anim-dip   { animation: kDip 1.8s ease-in-out infinite; }
+.anim-squat   { transform-box: fill-box; transform-origin: 50% 100%; animation: kSquat 2s ease-in-out infinite; }
 
-@keyframes kPress { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-9px); } }
-@keyframes kRow   { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-@keyframes kSquat { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(.82); } }
-@keyframes kPlank { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
-@keyframes kPull  { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-11px); } }
-@keyframes kDip   { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(9px); } }
+.anim-hinge    { transform-box: view-box; transform-origin: 50px 56px; animation: kHinge 2.2s ease-in-out infinite; }
+.anim-deadlift { transform-box: view-box; transform-origin: 50px 58px; animation: kDead 2.2s ease-in-out infinite; }
+.anim-hangleg  { transform-box: view-box; transform-origin: 50px 62px; animation: kHangleg 2s ease-in-out infinite; }
+.anim-legraise { transform-box: view-box; transform-origin: 52px 76px; animation: kLegraise 2s ease-in-out infinite; }
+.anim-curl     { transform-box: view-box; transform-origin: 60px 52px; animation: kCurl 1.6s ease-in-out infinite; }
+.anim-triceps  { transform-box: view-box; transform-origin: 50px 30px; animation: kTri 1.7s ease-in-out infinite; }
+.anim-latl     { transform-box: view-box; transform-origin: 50px 40px; animation: kLatL 1.9s ease-in-out infinite; }
+.anim-latr     { transform-box: view-box; transform-origin: 50px 40px; animation: kLatR 1.9s ease-in-out infinite; }
+
+@keyframes kPress   { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-9px); } }
+@keyframes kRow     { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+@keyframes kPull    { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-11px); } }
+@keyframes kDip     { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(9px); } }
+@keyframes kPlank   { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+@keyframes kLunge   { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(7px); } }
+@keyframes kPushup  { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(5px); } }
+@keyframes kCalf    { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+@keyframes kHip     { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+@keyframes kSquat   { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(.82); } }
+@keyframes kHinge   { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(34deg); } }
+@keyframes kDead    { 0%, 100% { transform: rotate(32deg); } 50% { transform: rotate(0); } }
+@keyframes kHangleg { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-62deg); } }
+@keyframes kLegraise{ 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-72deg); } }
+@keyframes kCurl    { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(115deg); } }
+@keyframes kTri     { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(58deg); } }
+@keyframes kLatL    { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(50deg); } }
+@keyframes kLatR    { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-50deg); } }
 
 .split-stat,
 .macro-grid {
