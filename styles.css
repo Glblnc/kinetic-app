@@ -1450,3 +1450,73 @@ svg {
   height: 13px;
   display: inline-block;
 }
+
+/* Reconnaissance d'un plat par photo */
+.fp-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem 0;
+  text-align: center;
+  color: var(--muted);
+}
+.spinner {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, .15);
+  border-top-color: var(--red, #e53935);
+  animation: fpspin .8s linear infinite;
+}
+@keyframes fpspin { to { transform: rotate(360deg); } }
+.fp-list {
+  display: flex;
+  flex-direction: column;
+  gap: .6rem;
+  margin: .6rem 0;
+  max-height: 46vh;
+  overflow-y: auto;
+}
+.fp-row {
+  background: var(--surface-2, rgba(255, 255, 255, .05));
+  border-radius: 10px;
+  padding: .55rem .65rem;
+}
+.fp-name {
+  width: 100%;
+  font-weight: 600;
+  margin-bottom: .35rem;
+}
+.fp-line {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  flex-wrap: wrap;
+}
+.fp-line label {
+  display: flex;
+  align-items: center;
+  gap: .3rem;
+  font-size: .78rem;
+  color: var(--muted);
+}
+.fp-grams { width: 78px; }
+.fp-macros {
+  flex: 1;
+  min-width: 140px;
+  font-size: .8rem;
+  color: var(--muted);
+}
+.fp-del { flex: none; }
+.fp-note {
+  font-size: .82rem;
+  color: var(--muted);
+  font-style: italic;
+  margin: .3rem 0;
+}
+.fp-disc {
+  font-size: .78rem;
+  color: var(--muted);
+  margin: .3rem 0 .6rem;
+}

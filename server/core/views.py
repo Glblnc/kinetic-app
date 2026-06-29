@@ -6,6 +6,7 @@ jamais transmise au navigateur : seul ce serveur l'utilise dans /api/coach.
 import datetime
 import hmac
 import json
+import re
 
 from django.conf import settings
 from django.contrib.auth import authenticate, get_user_model, login, logout
@@ -270,6 +271,146 @@ def coach(request):
     if not text:
         return JsonResponse({"error": "Réponse vide du coach IA."}, status=502)
     return JsonResponse({"reply": text})
+
+
+# --- Reconnaissance d'aliments par photo (Claude Vision, clé côté serveur) --
+ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/webp", "image/gif"}
+MAX_IMAGE_B64 = 5_000_000  # ~5 Mo de base64 (l'image est compressée côté client)
+
+
+def _extract_json(text):
+    """Parse le JSON renvoyé par le modèle, avec repli si du texte l'entoure."""
+    text = (text or "").strip()
+    try:
+        return json.loads(text)
+    except ValueError:
+        pass
+    m = re.search(r"\{.*\}", text, re.S)
+    if m:
+        try:
+            return json.loads(m.group(0))
+        except ValueError:
+            return None
+    return None
+
+
+def _num(v, default=0.0):
+    try:
+        return float(v)
+    except (TypeError, ValueError):
+        return default
+
+
+def _sanitize_food_items(data):
+    foods = []
+    for it in (data.get("foods") or [])[:25]:
+        if not isinstance(it, dict):
+            continue
+        name = str(it.get("name") or "").strip()[:80]
+        if not name:
+            continue
+        foods.append({
+            "name": name,
+            "grams": int(max(0, min(3000, round(_num(it.get("grams")))))),
+            "calories": int(max(0, min(6000, round(_num(it.get("calories")))))),
+            "protein": round(max(0, min(500, _num(it.get("protein")))), 1),
+            "carbs": round(max(0, min(800, _num(it.get("carbs")))), 1),
+            "fat": round(max(0, min(500, _num(it.get("fat")))), 1),
+        })
+    return foods
+
+
+@require_http_methods(["POST"])
+def food_photo(request):
+    """Analyse la photo d'un repas et renvoie les aliments détectés (estimation)."""
+    if not request.user.is_authenticated:
+        return JsonResponse({"error": "Authentification requise."}, status=401)
+    if not settings.ANTHROPIC_API_KEY:
+        return JsonResponse(
+            {"error": "Reconnaissance par photo non configurée sur le serveur (clé absente)."},
+            status=503,
+        )
+
+    body = _json_body(request)
+    if body is None:
+        return JsonResponse({"error": "Requête invalide."}, status=400)
+    image = body.get("image") or ""
+    media_type = body.get("mediaType") or "image/jpeg"
+    if media_type not in ALLOWED_IMAGE_TYPES:
+        return JsonResponse({"error": "Format d'image non supporté."}, status=400)
+    if not image or len(image) > MAX_IMAGE_B64:
+        return JsonResponse({"error": "Image manquante ou trop volumineuse."}, status=400)
+
+    english = body.get("language") == "en"
+    if english:
+        system_prompt = (
+            "You are a nutrition expert analyzing a photo of a meal. Identify every "
+            "distinct food or dish actually visible. Ignore negligible seasonings (salt, "
+            "pepper, spices, herbs, a drizzle of oil, tiny amounts of sauce) unless they are "
+            "a major part of the dish. For each food, estimate the visible portion in grams, "
+            "then its nutrition for THAT portion. Reply ONLY with a valid JSON object, no text "
+            "around it, exactly in this shape: {\"foods\":[{\"name\":\"short name\",\"grams\":number,"
+            "\"calories\":number,\"protein\":number,\"carbs\":number,\"fat\":number}],\"note\":\"short comment\"}. "
+            "grams and calories are integers; protein, carbs, fat may have one decimal. If no food "
+            "is identifiable, return {\"foods\":[],\"note\":\"...\"}."
+        )
+        user_text = "Here is a photo of my meal. Identify every food present and estimate the quantities."
+    else:
+        system_prompt = (
+            "Tu es un expert en nutrition qui analyse la photo d'un repas. Identifie chaque "
+            "aliment ou plat distinct réellement visible. Ignore les assaisonnements négligeables "
+            "(sel, poivre, épices, herbes, filet d'huile, très petite quantité de sauce) sauf s'ils "
+            "constituent une part importante du plat. Pour chaque aliment, estime la portion visible "
+            "en grammes, puis ses valeurs nutritionnelles pour CETTE portion. Réponds UNIQUEMENT par "
+            "un objet JSON valide, sans aucun texte autour, exactement au format : "
+            "{\"foods\":[{\"name\":\"nom court\",\"grams\":nombre,\"calories\":nombre,\"protein\":nombre,"
+            "\"carbs\":nombre,\"fat\":nombre}],\"note\":\"court commentaire\"}. grams et calories sont des "
+            "entiers ; protein, carbs, fat peuvent avoir une décimale. Si aucun aliment n'est "
+            "identifiable, renvoie {\"foods\":[],\"note\":\"...\"}."
+        )
+        user_text = "Voici la photo de mon repas. Identifie tous les aliments présents et estime les quantités."
+
+    try:
+        import anthropic
+    except ImportError:
+        return JsonResponse({"error": "SDK Anthropic absent côté serveur."}, status=503)
+
+    try:
+        client = anthropic.Anthropic(api_key=settings.ANTHROPIC_API_KEY)
+        resp = client.messages.create(
+            model=settings.KINETIC_VISION_MODEL,
+            max_tokens=1024,
+            system=system_prompt,
+            messages=[{
+                "role": "user",
+                "content": [
+                    {"type": "image", "source": {
+                        "type": "base64", "media_type": media_type, "data": image}},
+                    {"type": "text", "text": user_text},
+                ],
+            }],
+        )
+    except anthropic.AuthenticationError:
+        return JsonResponse({"error": "Clé Claude invalide côté serveur."}, status=502)
+    except anthropic.RateLimitError:
+        return JsonResponse({"error": "Limite de débit Claude atteinte, réessaie."}, status=429)
+    except anthropic.APIStatusError as exc:
+        return JsonResponse({"error": f"Erreur API Claude ({exc.status_code})."}, status=502)
+    except anthropic.APIConnectionError:
+        return JsonResponse({"error": "Connexion à Claude impossible."}, status=502)
+    except Exception:
+        return JsonResponse({"error": "Erreur inattendue de l'analyse photo."}, status=500)
+
+    text = "".join(
+        getattr(b, "text", "") for b in resp.content if getattr(b, "type", "") == "text"
+    ).strip()
+    parsed = _extract_json(text)
+    if not isinstance(parsed, dict):
+        return JsonResponse({"error": "Réponse illisible du modèle."}, status=502)
+    return JsonResponse({
+        "foods": _sanitize_food_items(parsed),
+        "note": str(parsed.get("note") or "").strip()[:300],
+    })
 
 
 # --- Notifications Web Push -------------------------------------------------

@@ -193,6 +193,9 @@ if not DEBUG:
 # --- Configuration Claude (lue côté serveur uniquement) ---------------------
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
 KINETIC_MODEL = os.environ.get("KINETIC_MODEL", "claude-opus-4-8")
+# Modèle pour la reconnaissance d'aliments par photo (vision). Par défaut le
+# même que le coach ; configurable pour choisir un modèle moins coûteux.
+KINETIC_VISION_MODEL = os.environ.get("KINETIC_VISION_MODEL", KINETIC_MODEL)
 
 # --- Web Push (notifications) ----------------------------------------------
 # La clé publique est transmise au navigateur ; la clé privée reste ici.
