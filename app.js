@@ -10,7 +10,7 @@ const _t = {
     ir:"Kinetic peut être installé sur cet appareil",lo:"Local",ol:"en ligne",ofl:"hors ligne",
     wt:"Semaine en cours",ses:"séances",seL:"Séances",vol:"Volume",cal:"Calories",rec:"Récupération",
     rem:"restantes",adh:"d'adhérence",ltr:"suivi local",rs:"Séance recommandée",dt:"Conseil du jour",
-    la:"Analyse locale",stb:"Stable",ld:"Charge",nul:"Nutrition",rl:"Récupération",att:"Attention",
+    la:"Analyse locale",stb:"Stable",det:"Détectée",ld:"Charge",nul:"Nutrition",rl:"Récupération",att:"Attention",
     ac:"Demander un conseil",up:"Profil utilisateur",sv:"Données sauvegardées localement",fr:"France",
     age:"Âge",sx:"Sexe",hgt:"Taille",wgt:"Poids",lvl:"Niveau",gl:"Objectif",act:"Activité quotidienne",
     spw:"Séances par semaine",eq:"Matériel disponible",inj:"Blessures ou limitations",fp:"Préférences alimentaires",
@@ -69,7 +69,13 @@ const _t = {
     ageConfirm:"Je certifie avoir 14 ans ou plus.",ageRequired:"Tu dois avoir 14 ans ou plus pour créer un compte.",
     instTitle:"Installer Kinetic",instDone:"Application déjà installée",
     instIos:"Sur iPhone/iPad :<br>1. Appuie sur le bouton <b>Partager</b> (le carré avec une flèche ↑) dans la barre de Safari.<br>2. Fais défiler et choisis <b>« Sur l'écran d'accueil »</b>.<br>3. Appuie sur <b>« Ajouter »</b>. L'icône Kinetic apparaît sur ton écran d'accueil.",
-    instOther:"Dans le menu de ton navigateur (icône <b>⋮</b> ou <b>≡</b>), choisis <b>« Installer l'application »</b> ou <b>« Ajouter à l'écran d'accueil »</b>."
+    instOther:"Dans le menu de ton navigateur (icône <b>⋮</b> ou <b>≡</b>), choisis <b>« Installer l'application »</b> ou <b>« Ajouter à l'écran d'accueil »</b>.",
+    startSession:"Démarrer la séance",session:"Séance",setN:"Série",weightKg:"Poids (kg)",validateSet:"Valider",nextEx:"Suivant",finishSession:"Terminer la séance",
+    lastTime:"Dernière fois",noLastTime:"Première fois",progUp:"+2,5 kg conseillé",progHold:"Consolide à ce poids",sessionDone:"Séance enregistrée 💪",restWord:"repos",
+    deloadTitle:"Semaine de décharge",deloadActive:"Décharge active",deloadActiveMsg:"Charges réduites de 10 % cette semaine pour récupérer.",deloadRecMsg:"Tes performances stagnent : une semaine de décharge (charges −10 %) peut relancer la progression.",deloadBtn:"Activer une semaine de décharge",deloadSuggest:"Plateau détecté — pense à une semaine de décharge.",deloadOn:"Semaine de décharge activée",plateauOn:"Plateau sur :",
+    progPhotos:"Photos de progression",addPhoto:"Ajouter",photosLocal:"Les photos restent sur cet appareil.",photoAdded:"Photo ajoutée",photoFull:"Stockage des photos plein",
+    exProgress:"Progression par exercice",noData:"Pas encore de données",
+    water:"Hydratation",waterGoalLbl:"Objectif",meal:"Repas",grams:"Quantité (g)"
   },
   en: {
     app:"Kinetic",tag:"AI Fitness Coach",h:"Home",p:"Profile",t:"Training",n:"Nutrition",g:"Progress",c:"AI Coach",
@@ -79,7 +85,7 @@ const _t = {
     ir:"Kinetic can be installed on this device",lo:"Local",ol:"online",ofl:"offline",
     wt:"Current week",ses:"sessions",seL:"Sessions",vol:"Volume",cal:"Calories",rec:"Recovery",
     rem:"remaining",adh:"adherence",ltr:"local tracking",rs:"Recommended Session",dt:"Daily Tip",
-    la:"Local Analysis",stb:"Stable",ld:"Load",nul:"Nutrition",rl:"Recovery",att:"Attention",
+    la:"Local Analysis",stb:"Stable",det:"Detected",ld:"Load",nul:"Nutrition",rl:"Recovery",att:"Attention",
     ac:"Ask for advice",up:"User Profile",sv:"Data saved locally",fr:"France",
     age:"Age",sx:"Sex",hgt:"Height",wgt:"Weight",lvl:"Level",gl:"Goal",act:"Daily Activity",
     spw:"Sessions per week",eq:"Available Equipment",inj:"Injuries or Limitations",fp:"Food Preferences",
@@ -138,7 +144,13 @@ const _t = {
     ageConfirm:"I confirm I am 14 or older.",ageRequired:"You must be 14 or older to create an account.",
     instTitle:"Install Kinetic",instDone:"App already installed",
     instIos:"On iPhone/iPad:<br>1. Tap the <b>Share</b> button (the square with an ↑ arrow) in Safari's bar.<br>2. Scroll and choose <b>“Add to Home Screen”</b>.<br>3. Tap <b>“Add”</b>. The Kinetic icon appears on your home screen.",
-    instOther:"In your browser menu (<b>⋮</b> or <b>≡</b> icon), choose <b>“Install app”</b> or <b>“Add to Home Screen”</b>."
+    instOther:"In your browser menu (<b>⋮</b> or <b>≡</b> icon), choose <b>“Install app”</b> or <b>“Add to Home Screen”</b>.",
+    startSession:"Start workout",session:"Workout",setN:"Set",weightKg:"Weight (kg)",validateSet:"Done",nextEx:"Next",finishSession:"Finish workout",
+    lastTime:"Last time",noLastTime:"First time",progUp:"+2.5 kg suggested",progHold:"Consolidate at this weight",sessionDone:"Workout saved 💪",restWord:"rest",
+    deloadTitle:"Deload week",deloadActive:"Deload active",deloadActiveMsg:"Loads reduced by 10% this week to recover.",deloadRecMsg:"Your performance is stalling: a deload week (loads −10%) can restart progress.",deloadBtn:"Start a deload week",deloadSuggest:"Plateau detected — consider a deload week.",deloadOn:"Deload week started",plateauOn:"Plateau on:",
+    progPhotos:"Progress photos",addPhoto:"Add",photosLocal:"Photos stay on this device.",photoAdded:"Photo added",photoFull:"Photo storage full",
+    exProgress:"Per-exercise progress",noData:"No data yet",
+    water:"Water",waterGoalLbl:"Goal",meal:"Meal",grams:"Amount (g)"
   }
 };
 
@@ -258,7 +270,7 @@ const defaultState = {
   onboardingDone:false,
   settings:{theme:"dark",language:"fr",notifications:false,reminderTime:"18:00"},
   profile:{name:"",age:30,sex:"Homme",height:175,weight:75,level:"Intermédiaire",goal:"Recomposition corporelle",activity:"Modérée",sessions:3,equipment:["Haltères"],limitations:"",foodPreferences:""},
-  plan:null,workouts:[],foods:[],measures:[],chat:[],completedExercises:[],achievements:[],favorites:[],overloadCount:0
+  plan:null,workouts:[],foods:[],measures:[],chat:[],completedExercises:[],achievements:[],favorites:[],overloadCount:0,water:{},deloadUntil:null
 };
 
 let state = loadState();
@@ -433,7 +445,15 @@ function bindEvents() {
     const bs=e.target.closest("[data-barcode-scan]");
     if(bs){startBarcodeScan();return;}
     const afd=e.target.closest("[data-add-food-db]");
-    if(afd){const name=afd.dataset.addFoodDb;const fi=foodDatabase.find(f=>f.name===name||f.nameEn===name);if(fi){state.foods.push({id:createId("food"),date:todayISO(),name:fi.name,meal:inferMeal(),calories:fi.cal,protein:fi.pro,carbs:fi.car,fat:fi.fat});persistAndRender(_("fda"));}return;}
+    if(afd){const fi=foodDatabase.find(f=>f.name===afd.dataset.addFoodDb||f.nameEn===afd.dataset.addFoodDb);if(fi)openFoodModal({name:fi.name,per100:{cal:fi.cal,pro:fi.pro,car:fi.car,fat:fi.fat}});return;}
+    const ssn=e.target.closest("[data-start-session]");
+    if(ssn){startSession();return;}
+    const wa=e.target.closest("[data-water]");
+    if(wa){addWater(parseInt(wa.dataset.water,10));return;}
+    const dph=e.target.closest("[data-del-photo]");
+    if(dph){deleteProgressPhoto(dph.dataset.delPhoto);return;}
+    const adl=e.target.closest("[data-apply-deload]");
+    if(adl){applyDeload();return;}
     const feel=e.target.closest("[data-feel]");
     if(feel){state.checkins=state.checkins||[];state.checkins.push({date:todayISO(),feel:feel.dataset.feel,timestamp:Date.now()});saveState();renderAll();showToast("Check-in");return;}
     const srm=e.target.closest("[data-set-reminder]");
@@ -549,6 +569,7 @@ function renderTraining() {
       </div>
       <div class="grid cols-2">
         <div class="panel"><div class="panel-head"><div><h2>${esc(next.focus)}</h2><p>${esc(next.label)} · ${next.duration} min</p></div><span class="tag">${esc(state.profile.level)}</span></div>
+          ${next.exercises.length?`<button class="btn primary block" data-start-session style="margin-bottom:.7rem"><span data-icon="check"></span>${_("startSession")}</button>`:""}
           <div class="exercise-list">${next.exercises.map(exerciseCard).join("")}</div>
           ${next.exercises.length?`<div style="margin-top:1rem;display:flex;gap:.5rem;flex-wrap:wrap"><button class="btn" data-start-rest="${next.exercises[0].rest}"><span data-icon="timer"></span> ${_("rt")} (${next.exercises[0].rest}s)</button></div>`:""}
         </div>
@@ -575,9 +596,13 @@ function renderNutrition() {
         <div style="margin-top:.8rem"><div class="panel-head"><h3>${_("sf")}</h3></div><input id="foodSearchInput" placeholder="${_("sfp")}" style="margin-bottom:.5rem"><div id="foodSearchResults" class="food-search-results"></div></div>
       </div>
       <div class="panel"><div class="panel-head"><div><h2>${_("fj")}</h2><p>${_("td2")}</p></div><span class="tag good">${formatNumber(totals.calories)} kcal</span></div>
-        <div class="meal-list">${td.map(f=>`<div class="meal-row"><div><b>${esc(f.name)}</b><span>${esc(f.meal)} · ${f.protein}g prot · ${f.carbs}g gluc</span></div><button class="icon-btn" data-remove-food="${f.id}" title="Supprimer"><span data-icon="trash"></span></button></div>`).join("")||`<div class="empty">${_("nf")}</div>`}</div>
+        <div class="meal-list">${td.map(f=>`<div class="meal-row"><div><b>${esc(f.name)}</b><span>${f.grams?f.grams+" g · ":""}${esc(f.meal)} · ${f.calories} kcal · ${f.protein}g P</span></div><button class="icon-btn" data-remove-food="${f.id}" title="Supprimer"><span data-icon="trash"></span></button></div>`).join("")||`<div class="empty">${_("nf")}</div>`}</div>
         <form class="composer" id="foodForm"><input name="foodName" placeholder="${_("afp")}"><button class="btn primary" type="submit"><span data-icon="plus"></span>${_("af")}</button></form>
         <button class="btn ghost block" data-barcode-scan style="margin-top:.5rem"><span data-icon="camera"></span>${_("bs")}</button>
+      </div>
+      <div class="panel"><div class="panel-head"><div><h2>${_("water")}</h2><p>${_("waterGoalLbl")} : ${waterGoal()} ml</p></div><span class="tag good">${waterToday()} ml</span></div>
+        <div class="progress-line" style="margin:.5rem 0"><span style="--value:${clamp(Math.round(waterToday()/Math.max(1,waterGoal())*100),0,100)}%"></span></div>
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap"><button class="btn" data-water="250">+250 ml</button><button class="btn" data-water="500">+500 ml</button><button class="btn ghost" data-water="-250">−250 ml</button></div>
       </div>
     </div>`;
   document.getElementById("foodForm").addEventListener("submit",addFood);
@@ -596,6 +621,8 @@ function renderProgress() {
   const prev=state.measures[state.measures.length-2]||last;
   const delta=Math.round((last.weight-prev.weight)*10)/10;
   checkAchievements();
+  const hist=exercisesWithHistory();if(!chartExId||!hist.some(h=>h.id===chartExId))chartExId=hist[0]?hist[0].id:null;
+  const photos=loadPhotos();
   document.getElementById("progressView").innerHTML=`
     <div class="grid cols-2">
       <div class="panel"><div class="panel-head"><div><h2>${_("crv")}</h2><p>${_("ws")}</p></div><div style="display:flex;gap:.4rem"><button class="btn ghost" id="exportBtn"><span data-icon="export"></span>${_("exp")}</button><button class="btn ghost" id="importBtn"><span data-icon="download"></span>${_("imp")}</button><input type="file" id="importInput" accept="application/json" hidden></div></div>
@@ -607,11 +634,18 @@ function renderProgress() {
         <div class="panel"><div class="panel-head"><div><h2>${_("bdg")}</h2><p>${_("mot")}</p></div></div><div class="badge-grid" style="grid-template-columns:repeat(3,1fr)"><div class="badge"><b>${_("reg")}</b><span>${week.sessions} séances</span></div><div class="badge"><b>${_("strg")}</b><span>Bench ${last.bench} kg</span></div><div class="badge"><b>${_("nul")}</b><span>${todaysFoodTotals().protein}g protéines</span></div></div></div>
         <div class="panel"><div class="panel-head"><div><h2>🏆 ${_("ach")}</h2><p>${state.achievements.length}/${achievementsDef.length}</p></div></div><div class="badge-grid" style="grid-template-columns:repeat(3,1fr)">${achievementsDef.map(a=>{const u=state.achievements.includes(a.id);return `<div class="badge" style="${u?"":"opacity:.4"}"><b>${_(a.ik)}</b><span>${u?"✅":"🔒"} ${_(a.idk)}</span></div>`;}).join("")}</div></div>
       </div>
+    </div>
+    <div class="grid cols-2" style="margin-top:1rem">
+      <div class="panel"><div class="panel-head"><div><h2>${_("exProgress")}</h2><p>${_("ws")}</p></div></div>${hist.length?`<select id="chartExSelect" style="margin-bottom:.5rem">${hist.map(h=>`<option value="${h.id}" ${h.id===chartExId?"selected":""}>${esc(h.name)}</option>`).join("")}</select><div class="chart"><svg viewBox="0 0 600 220" preserveAspectRatio="none"><path class="green-line" d="${exercisePath(chartExId)}"/></svg></div>`:`<div class="empty">${_("noData")}</div>`}</div>
+      <div class="panel"><div class="panel-head"><div><h2>${_("progPhotos")}</h2><p>${_("photosLocal")}</p></div><button class="btn ghost" id="addPhotoBtn"><span data-icon="camera"></span>${_("addPhoto")}</button><input type="file" id="photoInput" accept="image/*" hidden></div><div class="photo-grid">${photos.length?photos.slice().reverse().map(p=>`<div class="photo-item"><img src="${p.data}" alt=""><span>${formatDate(p.date)}</span><button class="icon-btn photo-del" data-del-photo="${p.id}" title="Supprimer"><span data-icon="trash"></span></button></div>`).join(""):`<div class="empty">${_("noData")}</div>`}</div></div>
     </div>`;
   document.getElementById("exportBtn").addEventListener("click",exportData);
   const importInput=document.getElementById("importInput");
   document.getElementById("importBtn").addEventListener("click",()=>importInput.click());
   importInput.addEventListener("change",e=>{if(e.target.files&&e.target.files[0])importData(e.target.files[0]);});
+  const chartSel=document.getElementById("chartExSelect");if(chartSel)chartSel.addEventListener("change",e=>{chartExId=e.target.value;renderProgress();injectIcons();});
+  const photoBtn=document.getElementById("addPhotoBtn"),photoInput=document.getElementById("photoInput");
+  if(photoBtn&&photoInput){photoBtn.addEventListener("click",()=>photoInput.click());photoInput.addEventListener("change",e=>{if(e.target.files&&e.target.files[0])addProgressPhoto(e.target.files[0]);});}
 }
 
 function renderCoach() {
@@ -628,6 +662,7 @@ function renderCoach() {
         <div class="panel"><div class="panel-head"><div><h2>${_("anl")}</h2><p>${_("ct")}</p></div></div>
           <ul class="summary-list"><li><span>${_("adh")}</span><strong>${Math.min(100,Math.round((weeklyWorkoutStats().sessions/state.profile.sessions)*100))}%</strong></li><li><span>${_("stg")}</span><strong>${detectStagnation()}</strong></li><li><span>${_("otr")}</span><strong>${recoveryScore()<55?_("tw"):_("lw")}</strong></li><li><span>${_("nxa")}</span><strong>${trainingAdvice().load}</strong></li></ul>
         </div>
+        ${(()=>{const r=recommendDeload();if(isDeload())return `<div class="panel"><div class="panel-head"><div><h2>${_("deloadTitle")}</h2></div><span class="tag warn">${_("deloadActive")}</span></div><p style="font-size:.85rem;color:var(--muted)">${_("deloadActiveMsg")}</p></div>`;if(!r.recommend)return "";return `<div class="panel" style="border-color:var(--red)"><div class="panel-head"><div><h2>${_("deloadTitle")}</h2><p>${r.plateau.length?_("plateauOn")+" "+esc(r.plateau.join(", ")):_("deloadRecMsg")}</p></div></div><p style="font-size:.85rem;color:var(--muted);margin-bottom:.6rem">${_("deloadRecMsg")}</p><button class="btn primary" data-apply-deload>${_("deloadBtn")}</button></div>`;})()}
         <div class="panel"><div class="panel-head"><div><h2>${_("po")}</h2></div></div>${renderOverload()}</div>
       </div>
     </div>`;
@@ -654,13 +689,143 @@ function saveProfile(e){
   state.plan=buildPlan(state.profile);persistAndRender(_("ps"));setView("dashboard");
 }
 
-function addFood(e){e.preventDefault();const n=new FormData(e.currentTarget).get("foodName").trim();if(!n){showToast(_("af2"));return;}const est=estimateFood(n);state.foods.push({id:createId("food"),date:todayISO(),name:n,meal:inferMeal(),...est});e.currentTarget.reset();persistAndRender(_("fda"));}
+function addFood(e){e.preventDefault();const n=new FormData(e.currentTarget).get("foodName").trim();if(!n){showToast(_("af2"));return;}const est=estimateFood(n);e.currentTarget.reset();openFoodModal({name:n,per100:{cal:est.calories,pro:est.protein,car:est.carbs,fat:est.fat}});}
 
 function completeExercise(id){
   const ex=exerciseLibrary.find(e=>e.id===id);if(!ex)return;if(state.completedExercises.includes(todayISO()+"-"+ex.id))return;
   const reps=parseInt(ex.reps,10)||10,load=adaptedLoad(ex,state.profile),vol=Math.round(ex.sets*reps*Math.max(load,1));
   state.workouts.push({id:createId("workout"),date:todayISO(),exerciseId:ex.id,name:ex.name,sets:ex.sets,reps,load,volume:vol,rpe:ex.limitation&&hasLimitation(ex.limitation)?6:7});
   state.completedExercises.push(todayISO()+"-"+ex.id);checkAchievements();persistAndRender(ex.name+" "+_("wv"));
+}
+
+// ===== Progression d'après les vraies performances =====
+function targetReps(ex){const m=String(ex.reps).match(/\d+/);return m?parseInt(m[0],10):8;}
+function lastPerf(exId){const r=state.workouts.filter(w=>w.exerciseId===exId);return r.length?r[r.length-1]:null;}
+function roundLoad(x){return x>0?Math.max(2.5,Math.round(x/2.5)*2.5):0;}
+function isDeload(){return !!(state.deloadUntil&&state.deloadUntil>=todayISO());}
+function lastSummary(rec){if(!rec)return _("noLastTime");if(rec.setsDetail&&rec.setsDetail.length)return (rec.load?rec.load+" kg":_("bw"))+" × "+rec.setsDetail.map(s=>s.reps).join(", ");return rec.sets+"×"+rec.reps+(rec.load?" @ "+rec.load+" kg":"");}
+function progressionFor(ex){
+  const last=lastPerf(ex.id);
+  let weight=adaptedLoad(ex,state.profile),hint=_("noLastTime");
+  if(last){
+    weight=last.load||0;
+    const tgt=targetReps(ex);
+    const minReps=last.setsDetail&&last.setsDetail.length?Math.min(...last.setsDetail.map(s=>s.reps)):last.reps;
+    if(last.load&&minReps>=tgt){weight=last.load+2.5;hint="↑ "+_("progUp");}else{hint="→ "+_("progHold");}
+  }
+  if(isDeload())weight=weight*0.9;
+  return {weight:roundLoad(weight),hint:last?hint:_("noLastTime"),last};
+}
+function suggestedWeight(ex){return progressionFor(ex).weight;}
+
+// ===== Séance guidée =====
+let sessionState=null;
+function startSession(){
+  const day=nextWorkout();
+  if(!day.exercises||!day.exercises.length){showToast(_("ns"));return;}
+  sessionState={idx:0,logs:{}};
+  day.exercises.forEach(ex=>{
+    sessionState.logs[ex.id]={name:ex.name,exId:ex.id,rest:ex.rest,bw:!ex.load,
+      weight:suggestedWeight(ex),sets:Array.from({length:ex.sets||3},()=>({reps:targetReps(ex),done:false}))};
+  });
+  renderSession();
+}
+function renderSession(){
+  if(!sessionState)return;
+  const exs=nextWorkout().exercises,ex=exs[sessionState.idx],log=sessionState.logs[ex.id],prog=progressionFor(ex);
+  let c=document.getElementById("sessionOverlay");
+  if(!c){c=document.createElement("div");c.id="sessionOverlay";c.className="onboarding-overlay";document.body.appendChild(c);}
+  const dots=exs.map((e,i)=>`<div class="onboarding-dot ${i===sessionState.idx?"active":i<sessionState.idx?"done":""}"></div>`).join("");
+  c.innerHTML=`<div class="onboarding-modal session-modal">
+    <div class="session-head"><strong>${_("session")} · ${sessionState.idx+1}/${exs.length}</strong><button class="btn ghost" id="sessionClose">${_("canc")}</button></div>
+    <div class="onboarding-steps">${dots}</div>
+    <div class="session-ex"><div class="demo" aria-hidden="true">${demoSvg(ex.id)}</div><div><h3>${esc(ex.name)}</h3><p style="color:var(--muted);font-size:.82rem">${ex.sets} × ${esc(ex.reps)} · ${_("restWord")} ${ex.rest}s</p><p style="font-size:.8rem;margin-top:.3rem"><b>${_("lastTime")} :</b> ${esc(lastSummary(prog.last))}${prog.last?' · <span style="color:var(--red)">'+prog.hint+'</span>':''}</p></div></div>
+    ${isDeload()?`<div class="empty" style="margin:.4rem 0">${_("deloadActive")}</div>`:""}
+    <label class="wide" style="margin-top:.3rem">${_("weightKg")}<input type="number" step="2.5" id="sessWeight" value="${log.weight}"></label>
+    <div class="set-rows">${log.sets.map((s,i)=>`<div class="set-log ${s.done?"done":""}"><span>${_("setN")} ${i+1}</span><input type="number" class="sess-reps" data-set="${i}" value="${s.reps}"><button class="btn ${s.done?"ghost":"primary"} sess-done" data-set="${i}">${s.done?"✓":_("validateSet")}</button></div>`).join("")}</div>
+    <div id="sessionRestPanel" style="display:none;margin-top:.5rem"></div>
+    <div class="session-nav">${sessionState.idx>0?`<button class="btn ghost" id="sessPrev">${_("prv")}</button>`:"<div></div>"}${sessionState.idx<exs.length-1?`<button class="btn" id="sessNext">${_("nextEx")}</button>`:`<button class="btn primary" id="sessFinish">${_("finishSession")}</button>`}</div>
+  </div>`;
+  injectIcons();
+  document.getElementById("sessWeight").addEventListener("input",e=>{log.weight=parseFloat(e.target.value)||0;});
+  c.querySelectorAll(".sess-reps").forEach(inp=>inp.addEventListener("input",e=>{log.sets[+e.target.dataset.set].reps=parseInt(e.target.value,10)||0;}));
+  c.querySelectorAll(".sess-done").forEach(b=>b.addEventListener("click",()=>{const i=+b.dataset.set,s=log.sets[i];s.done=!s.done;b.closest(".set-log").classList.toggle("done",s.done);b.textContent=s.done?"✓":_("validateSet");b.classList.toggle("primary",!s.done);b.classList.toggle("ghost",s.done);if(s.done)startRestTimer(log.rest,"sessionRestPanel");}));
+  document.getElementById("sessPrev")?.addEventListener("click",()=>{sessionState.idx--;renderSession();});
+  document.getElementById("sessNext")?.addEventListener("click",()=>{sessionState.idx++;renderSession();});
+  document.getElementById("sessFinish")?.addEventListener("click",finishSession);
+  document.getElementById("sessionClose").addEventListener("click",()=>{cancelRestTimer();sessionState=null;c.remove();});
+}
+function finishSession(){
+  let logged=0;
+  Object.values(sessionState.logs).forEach(log=>{
+    const done=log.sets.filter(s=>s.done);if(!done.length)return;
+    const detail=done.map(s=>({weight:log.weight,reps:s.reps}));
+    const vol=Math.round(detail.reduce((a,s)=>a+Math.max(s.weight,1)*s.reps,0));
+    const avg=Math.round(detail.reduce((a,s)=>a+s.reps,0)/detail.length);
+    state.workouts.push({id:createId("workout"),date:todayISO(),exerciseId:log.exId,name:log.name,load:log.weight,reps:avg,sets:detail.length,volume:vol,rpe:7,setsDetail:detail});
+    logged++;
+  });
+  cancelRestTimer();
+  const rec=recommendDeload();
+  sessionState=null;document.getElementById("sessionOverlay")?.remove();
+  checkAchievements();persistAndRender(logged?_("sessionDone"):_("ns"));
+  if(rec.recommend&&!isDeload())setTimeout(()=>showToast(_("deloadSuggest")),2700);
+}
+
+// ===== Détection de plateau / décharge =====
+function detectPlateauList(){
+  const ids=[...new Set(state.workouts.map(w=>w.exerciseId))],out=[];
+  ids.forEach(id=>{const recs=state.workouts.filter(w=>w.exerciseId===id);if(recs.length<3)return;const l=recs.slice(-3).map(r=>r.load||0);if(l[2]<=l[0]&&l[2]<=l[1]&&l[0]>0){const ex=exerciseLibrary.find(e=>e.id===id);out.push(ex?ex.name:id);}});
+  return out;
+}
+function recommendDeload(){const pl=detectPlateauList();const wk=weeklyWorkoutStats();return{recommend:pl.length>=2||(wk.sessions>=state.profile.sessions&&recoveryScore()<60),plateau:pl};}
+function applyDeload(){const d=new Date();d.setDate(d.getDate()+7);state.deloadUntil=d.toISOString().slice(0,10);state.plan=buildPlan(state.profile);persistAndRender(_("deloadOn"));}
+
+// ===== Photos de progression (stockées sur l'appareil) =====
+const PHOTO_KEY="kinetic.photos";
+function loadPhotos(){try{return JSON.parse(localStorage.getItem(PHOTO_KEY)||"[]");}catch(e){return [];}}
+function savePhotos(p){try{localStorage.setItem(PHOTO_KEY,JSON.stringify(p));}catch(e){showToast(_("photoFull"));}}
+function addProgressPhoto(file){
+  const url=URL.createObjectURL(file),img=new Image();
+  img.onload=()=>{URL.revokeObjectURL(url);const max=820;let w=img.width,h=img.height;if(w>h&&w>max){h=Math.round(h*max/w);w=max;}else if(h>=w&&h>max){w=Math.round(w*max/h);h=max;}
+    const cv=document.createElement("canvas");cv.width=w;cv.height=h;cv.getContext("2d").drawImage(img,0,0,w,h);
+    const photos=loadPhotos();photos.push({id:createId("photo"),date:todayISO(),data:cv.toDataURL("image/jpeg",0.6)});savePhotos(photos);renderProgress();injectIcons();showToast(_("photoAdded"));};
+  img.onerror=()=>{URL.revokeObjectURL(url);showToast(_("aiError"));};
+  img.src=url;
+}
+function deleteProgressPhoto(id){savePhotos(loadPhotos().filter(p=>p.id!==id));renderProgress();injectIcons();}
+
+// ===== Courbes par exercice =====
+let chartExId=null;
+function exercisesWithHistory(){return [...new Set(state.workouts.map(w=>w.exerciseId))].map(id=>{const ex=exerciseLibrary.find(e=>e.id===id);return{id,name:ex?ex.name:id};});}
+function linePath(v){if(!v.length)return"";const min=Math.min(...v),max=Math.max(...v),range=max-min||1;return v.map((val,i)=>{const x=(i/Math.max(1,v.length-1))*600,y=190-((val-min)/range)*150;return [Math.round(x),Math.round(y)];}).map(([x,y],i)=>(i===0?"M":"L")+x+" "+y).join(" ");}
+function exercisePath(exId){return linePath(state.workouts.filter(w=>w.exerciseId===exId).map(r=>r.load||0));}
+
+// ===== Hydratation =====
+function waterToday(){return (state.water&&state.water[todayISO()])||0;}
+function waterGoal(){return Math.max(1500,Math.round((Number(state.profile.weight)||75)*35/100)*100);}
+function addWater(ml){const d=todayISO();state.water=state.water||{};state.water[d]=Math.max(0,(state.water[d]||0)+ml);saveState();renderNutrition();injectIcons();}
+
+// ===== Nutrition : quantités précises =====
+function openFoodModal(food){
+  let c=document.getElementById("foodOverlay");if(!c){c=document.createElement("div");c.id="foodOverlay";c.className="scan-overlay";document.body.appendChild(c);}
+  c.innerHTML=`<div class="scan-modal"><div class="scan-head"><h3>${esc(food.name)}</h3><button class="btn ghost" id="foodClose">${_("canc")}</button></div>
+    <label class="wide">${_("grams")}<input type="number" id="foodGrams" value="100" min="1"></label>
+    <label class="wide" style="margin-top:.4rem">${_("meal")}<select id="foodMeal"><option>${_("bf")}</option><option>${_("lu")}</option><option>${_("sn")}</option><option>${_("di")}</option></select></label>
+    <div id="foodPreview" style="margin:.6rem 0;font-size:.92rem;color:var(--muted)"></div>
+    <button class="btn primary block" id="foodAdd"><span data-icon="plus"></span>${_("af")}</button></div>`;
+  injectIcons();
+  const p=food.per100,r1=x=>Math.round(x*10)/10;
+  const upd=()=>{const g=parseFloat(document.getElementById("foodGrams").value)||0;document.getElementById("foodPreview").innerHTML=`<b>${Math.round(p.cal*g/100)} kcal</b> · ${_("pro")} ${r1(p.pro*g/100)} g · ${_("car")} ${r1(p.car*g/100)} g · ${_("lip")} ${r1(p.fat*g/100)} g`;};
+  document.getElementById("foodGrams").addEventListener("input",upd);upd();
+  document.getElementById("foodMeal").value=inferMeal();
+  document.getElementById("foodClose").addEventListener("click",()=>c.remove());
+  c.addEventListener("click",e=>{if(e.target===c)c.remove();});
+  document.getElementById("foodAdd").addEventListener("click",()=>{
+    const g=parseFloat(document.getElementById("foodGrams").value)||100;
+    state.foods.push({id:createId("food"),date:todayISO(),name:food.name,meal:document.getElementById("foodMeal").value,grams:g,calories:Math.round(p.cal*g/100),protein:r1(p.pro*g/100),carbs:r1(p.car*g/100),fat:r1(p.fat*g/100)});
+    c.remove();persistAndRender(_("fda"));
+  });
 }
 
 function buildPlan(profile){
@@ -797,8 +962,8 @@ function renderWeekProgress(){const w=weeklyWorkoutStats();const p=clamp(Math.ro
 function nextWorkout(){const a=state.plan.week.filter(d=>d.active);return a[0]||{label:_("rst"),focus:_("rst"),duration:30,exercises:[exerciseLibrary.find(e=>e.id==="plank")]};}
 function recoveryScore(){const w=weeklyWorkoutStats(),p=state.profile.sessions;if(w.sessions>p)return 58;if(w.sessions===p)return 76;return 84;}
 function recoveryLabel(){const s=recoveryScore();if(s<60)return _("tw");if(s<78)return _("rl");return _("stb");}
-function trainingAdvice(){return{load:detectStagnation()===_("stg")?"Micro-charge":"+1 rep avant charge",nutrition:todaysFoodTotals().protein<calculateNutrition(state.profile).protein*.7?"+ protéines":"Macros stables",recovery:recoveryScore()<60?"-20% volume":"Repos normal"};}
-function detectStagnation(){const m=state.measures.slice(-3).map(i=>i.bench);if(m.length<2)return _("lw");return new Set(m).size===1?_("stg"):"Non détectée";}
+function trainingAdvice(){return{load:detectPlateauList().length?"Micro-charge":"+1 rep avant charge",nutrition:todaysFoodTotals().protein<calculateNutrition(state.profile).protein*.7?"+ protéines":"Macros stables",recovery:recoveryScore()<60?"-20% volume":"Repos normal"};}
+function detectStagnation(){return detectPlateauList().length?_("det"):_("stb");}
 function limitationShort(){const t=state.profile.limitations.trim();return t?t.split(/[,.]/)[0]:"Aucune";}
 function hasLimitation(t){return state.profile.limitations.toLowerCase().includes(t);}
 
@@ -889,15 +1054,15 @@ function importData(file){
 
 function checkAchievements(){achievementsDef.forEach(a=>{if(state.achievements.includes(a.id))return;if(a.chk()){state.achievements.push(a.id);showToast("🏆 "+_(a.ik)+" : "+_(a.idk));}});}
 
-function startRestTimer(seconds){
-  cancelRestTimer();restTimerData={remaining:seconds,paused:false};
-  const p=document.getElementById("restTimerPanel");
+function startRestTimer(seconds,panelId){
+  cancelRestTimer();panelId=panelId||"restTimerPanel";restTimerData={remaining:seconds,paused:false,panelId};
+  const p=document.getElementById(panelId);
   if(p){p.style.display="block";p.innerHTML=`<div class="rest-timer"><div class="rest-timer-display" id="restTimerDisplay">${formatTime(seconds)}</div><div class="rest-timer-controls"><button class="btn" id="restTimerToggle" data-toggle-pause-rest>${_("pau")}</button><button class="btn ghost" data-cancel-rest>${_("canc")}</button></div></div>`;}
-  restTimerData.interval=setInterval(()=>{if(restTimerData.paused)return;restTimerData.remaining--;const d=document.getElementById("restTimerDisplay");if(d)d.textContent=formatTime(restTimerData.remaining);if(restTimerData.remaining<=0){clearInterval(restTimerData.interval);restTimerData=null;if(p){p.innerHTML=`<div class="rest-timer rest-timer-done"><div class="rest-timer-display">${_("rtd")}</div><button class="btn primary" data-cancel-rest>${_("rtc")}</button></div>`;}showToast(_("rtc"));}},1000);
+  restTimerData.interval=setInterval(()=>{if(!restTimerData||restTimerData.paused)return;restTimerData.remaining--;const d=document.getElementById("restTimerDisplay");if(d)d.textContent=formatTime(restTimerData.remaining);if(restTimerData.remaining<=0){clearInterval(restTimerData.interval);if(p){p.innerHTML=`<div class="rest-timer rest-timer-done"><div class="rest-timer-display">${_("rtd")}</div><button class="btn primary" data-cancel-rest>${_("rtc")}</button></div>`;}restTimerData=null;showToast(_("rtc"));}},1000);
 }
 
 function togglePauseRestTimer(){if(!restTimerData)return;restTimerData.paused=!restTimerData.paused;const b=document.getElementById("restTimerToggle");if(b)b.textContent=restTimerData.paused?_("res"):_("pau");}
-function cancelRestTimer(){if(restTimerData&&restTimerData.interval)clearInterval(restTimerData.interval);restTimerData=null;const p=document.getElementById("restTimerPanel");if(p)p.style.display="none";}
+function cancelRestTimer(){if(restTimerData&&restTimerData.interval)clearInterval(restTimerData.interval);const p=restTimerData&&document.getElementById(restTimerData.panelId);restTimerData=null;if(p)p.style.display="none";}
 function formatTime(s){const m=Math.floor(s/60),sec=s%60;return m+":"+(sec<10?"0":"")+sec;}
 
 async function startBarcodeScan(){
@@ -936,11 +1101,10 @@ async function lookupBarcode(code){
     const data=await res.json();
     if(data.status!==1||!data.product){if(s)s.textContent=_("bnf");return;}
     const pr=data.product,n=pr.nutriments||{};
-    const r1=x=>Math.round((Number(x)||0)*10)/10;
-    state.foods.push({id:createId("food"),date:todayISO(),name:pr.product_name_fr||pr.product_name||pr.brands||code,meal:inferMeal(),
-      calories:Math.round(Number(n["energy-kcal_100g"]||n["energy-kcal_serving"]||0)),
-      protein:r1(n.proteins_100g),carbs:r1(n.carbohydrates_100g),fat:r1(n.fat_100g)});
-    closeScan();persistAndRender(_("fda"));
+    const num=x=>Number(x)||0;
+    closeScan();
+    openFoodModal({name:pr.product_name_fr||pr.product_name||pr.brands||code,per100:{
+      cal:Math.round(num(n["energy-kcal_100g"])),pro:num(n.proteins_100g),car:num(n.carbohydrates_100g),fat:num(n.fat_100g)}});
   }catch(e){if(s)s.textContent=_("bnf");}
 }
 

@@ -1322,3 +1322,82 @@ svg {
   0%, 100% { opacity: .35; }
   50% { opacity: .85; }
 }
+
+/* Séance guidée */
+.session-modal { width: min(460px, 100%); }
+.session-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: .6rem;
+}
+.session-ex {
+  display: flex;
+  gap: .8rem;
+  align-items: center;
+  margin: .4rem 0;
+}
+.session-ex .demo {
+  width: 5.5rem;
+  min-width: 5.5rem;
+  height: 5rem;
+}
+.session-ex h3 { margin: 0; }
+.set-rows {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  margin: .6rem 0;
+}
+.set-log {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: .5rem;
+  align-items: center;
+}
+.set-log span { font-size: .85rem; color: var(--muted); }
+.set-log input { margin: 0; }
+.set-log.done span { color: var(--green); }
+.session-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: .5rem;
+  margin-top: .6rem;
+}
+
+/* Galerie de photos de progression */
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: .5rem;
+}
+.photo-item {
+  position: relative;
+  border-radius: calc(var(--radius) - 6px);
+  overflow: hidden;
+  background: var(--surface-2, #1a1a1c);
+}
+.photo-item img {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  display: block;
+}
+.photo-item span {
+  position: absolute;
+  left: 4px;
+  bottom: 4px;
+  font-size: .62rem;
+  background: rgba(0, 0, 0, .6);
+  color: #fff;
+  padding: 1px 5px;
+  border-radius: 6px;
+}
+.photo-item .photo-del {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: rgba(0, 0, 0, .55);
+  width: 1.7rem;
+  height: 1.7rem;
+}
