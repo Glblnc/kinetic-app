@@ -1,11 +1,15 @@
 """Couche d'abstraction IA pour Kinetic.
 
-Choisit automatiquement le fournisseur selon les clés configurées :
-- **Gemini** (Google) en priorité s'il y a une clé — palier gratuit, gère aussi
-  la vision. Appelé via son API REST (urllib, aucune dépendance ajoutée).
-- **Anthropic** (Claude) en repli si seule sa clé est présente.
+Choisit automatiquement le fournisseur selon les clés configurées, par ordre de
+priorité (le premier qui a une clé gagne) :
+- **Mistral** (FR, RGPD) — tier gratuit, vision via Pixtral. API compatible OpenAI.
+- **OpenRouter** — tier gratuit, plusieurs modèles dont vision. Compatible OpenAI.
+- **Gemini** (Google) — gratuit hors UE (payant en UE), gère la vision. API REST.
+- **Anthropic** (Claude) — repli payant si seule sa clé est présente.
 
-La clé reste côté serveur et n'est jamais transmise au navigateur.
+Mistral et OpenRouter passent par le format OpenAI Chat Completions ; Gemini et
+Anthropic ont leur propre format. Tout est appelé via urllib / SDK déjà présent,
+sans dépendance ajoutée. La clé reste côté serveur, jamais exposée au navigateur.
 """
 import json
 import urllib.error
@@ -22,7 +26,34 @@ class AIError(Exception):
         self.status = status
 
 
+# Fournisseurs « compatibles OpenAI » (Mistral, OpenRouter) : même format d'API,
+# on ne change que l'URL de base, la clé, les modèles et quelques en-têtes.
+def _openai_compat_configs():
+    return {
+        "mistral": {
+            "label": "Mistral",
+            "base": "https://api.mistral.ai/v1/chat/completions",
+            "key": settings.MISTRAL_API_KEY,
+            "model": settings.MISTRAL_MODEL,
+            "vision_model": settings.MISTRAL_VISION_MODEL,
+            "headers": {},
+        },
+        "openrouter": {
+            "label": "OpenRouter",
+            "base": "https://openrouter.ai/api/v1/chat/completions",
+            "key": settings.OPENROUTER_API_KEY,
+            "model": settings.OPENROUTER_MODEL,
+            "vision_model": settings.OPENROUTER_VISION_MODEL,
+            "headers": {"HTTP-Referer": "https://kinetic-5tw8.onrender.com", "X-Title": "Kinetic"},
+        },
+    }
+
+
 def provider():
+    if settings.MISTRAL_API_KEY:
+        return "mistral"
+    if settings.OPENROUTER_API_KEY:
+        return "openrouter"
     if settings.GEMINI_API_KEY:
         return "gemini"
     if settings.ANTHROPIC_API_KEY:
@@ -32,6 +63,53 @@ def provider():
 
 def available():
     return provider() is not None
+
+
+# --- Fournisseurs compatibles OpenAI (Mistral, OpenRouter) ------------------
+def _openai_compat_call(cfg, messages, model):
+    payload = {"model": model, "messages": messages, "max_tokens": 1024, "temperature": 0.7}
+    headers = {"Content-Type": "application/json", "Authorization": "Bearer " + cfg["key"]}
+    headers.update(cfg.get("headers") or {})
+    req = urllib.request.Request(
+        cfg["base"], data=json.dumps(payload).encode("utf-8"), headers=headers, method="POST"
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=60) as resp:
+            body = json.loads(resp.read().decode("utf-8"))
+    except urllib.error.HTTPError as exc:
+        code = exc.code
+        if code == 429:
+            raise AIError(f"Limite gratuite {cfg['label']} atteinte, réessaie plus tard.", 429)
+        if code in (401, 403):
+            raise AIError(f"Clé {cfg['label']} invalide ou refusée côté serveur.", 502)
+        raise AIError(f"Erreur API {cfg['label']} ({code}).", 502)
+    except urllib.error.URLError:
+        raise AIError(f"Connexion à {cfg['label']} impossible.", 502)
+    except Exception:
+        raise AIError("Erreur inattendue de l'IA.", 500)
+
+    choices = body.get("choices") or []
+    if not choices:
+        raise AIError("Réponse vide de l'IA.", 502)
+    text = ((choices[0].get("message") or {}).get("content") or "").strip()
+    if not text:
+        raise AIError("Réponse vide de l'IA.", 502)
+    return text
+
+
+def _oai_text_messages(system_text, messages):
+    out = [{"role": "system", "content": system_text}] if system_text else []
+    out.extend({"role": m.get("role", "user"), "content": m.get("content", "")} for m in messages)
+    return out
+
+
+def _oai_vision_messages(system_text, user_text, image_b64, media_type):
+    out = [{"role": "system", "content": system_text}] if system_text else []
+    out.append({"role": "user", "content": [
+        {"type": "text", "text": user_text},
+        {"type": "image_url", "image_url": {"url": f"data:{media_type};base64,{image_b64}"}},
+    ]})
+    return out
 
 
 # --- Gemini (REST) ----------------------------------------------------------
@@ -126,6 +204,9 @@ def _anthropic_run(create_kwargs):
 def chat(system_text, messages):
     """Conversation texte. `messages` : [{role:'user'|'assistant', content:str}]."""
     p = provider()
+    if p in ("mistral", "openrouter"):
+        cfg = _openai_compat_configs()[p]
+        return _openai_compat_call(cfg, _oai_text_messages(system_text, messages), cfg["model"])
     if p == "gemini":
         return _gemini_call(_gemini_messages(messages), system_text, settings.GEMINI_MODEL)
     if p == "anthropic":
@@ -141,6 +222,10 @@ def chat(system_text, messages):
 def vision(system_text, user_text, image_b64, media_type):
     """Analyse d'image + texte. Renvoie le texte (souvent du JSON) du modèle."""
     p = provider()
+    if p in ("mistral", "openrouter"):
+        cfg = _openai_compat_configs()[p]
+        msgs = _oai_vision_messages(system_text, user_text, image_b64, media_type)
+        return _openai_compat_call(cfg, msgs, cfg["vision_model"])
     if p == "gemini":
         contents = [{"role": "user", "parts": [
             {"inline_data": {"mime_type": media_type, "data": image_b64}},

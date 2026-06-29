@@ -192,9 +192,22 @@ if not DEBUG:
 
 # --- Configuration Claude (lue côté serveur uniquement) ---------------------
 # --- Fournisseurs IA --------------------------------------------------------
-# Gemini (Google) est utilisé en priorité s'il a une clé : il a un palier
-# GRATUIT et gère la vision. Anthropic (Claude) sert de repli si seule sa clé
-# est présente. Les clés restent côté serveur, jamais exposées au navigateur.
+# Ordre de priorité : Mistral → OpenRouter → Gemini → Anthropic (le premier qui
+# a une clé est utilisé). Mistral et OpenRouter ont des paliers GRATUITS
+# disponibles en France et gèrent la vision. Les clés restent côté serveur.
+
+# Mistral (entreprise française, RGPD) — palier gratuit + vision (Pixtral).
+MISTRAL_API_KEY = os.environ.get("MISTRAL_API_KEY", "")
+MISTRAL_MODEL = os.environ.get("MISTRAL_MODEL", "mistral-small-latest")
+MISTRAL_VISION_MODEL = os.environ.get("MISTRAL_VISION_MODEL", "pixtral-12b-2409")
+
+# OpenRouter — palier gratuit, modèles « :free » (dont vision), sans téléphone.
+OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY", "")
+OPENROUTER_MODEL = os.environ.get("OPENROUTER_MODEL", "meta-llama/llama-3.3-70b-instruct:free")
+OPENROUTER_VISION_MODEL = os.environ.get(
+    "OPENROUTER_VISION_MODEL", "meta-llama/llama-3.2-11b-vision-instruct:free")
+
+# Gemini (Google) — gratuit hors UE, mais PAYANT en UE (France). Conservé au cas où.
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-2.0-flash")
 GEMINI_VISION_MODEL = os.environ.get("GEMINI_VISION_MODEL", GEMINI_MODEL)

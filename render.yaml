@@ -44,14 +44,21 @@ services:
       # cron-job.org pour appeler /api/cron/reminders toutes les ~15 min.
       - key: KINETIC_CRON_TOKEN
         generateValue: true
-      # --- À renseigner dans le tableau de bord Render (jamais dans le code) ---
-      # Clé IA GRATUITE (Google Gemini, palier gratuit) — active le coach IA et
-      # la reconnaissance de plat par photo sans payer. À créer sur
-      # https://aistudio.google.com/apikey puis coller ici.
+      # --- Clé IA à renseigner dans le tableau de bord Render (jamais dans le code) ---
+      # Il suffit d'UNE seule clé pour activer le coach IA + la reconnaissance de
+      # plat par photo. Priorité : Mistral > OpenRouter > Gemini > Anthropic.
+      #
+      # Recommandé (GRATUIT, dispo en France, avec vision) :
+      # Mistral (FR, RGPD) — créer sur https://console.mistral.ai/api-keys
+      - key: MISTRAL_API_KEY
+        sync: false
+      # Alternative gratuite sans téléphone — https://openrouter.ai/keys
+      - key: OPENROUTER_API_KEY
+        sync: false
+      # Gemini : gratuit hors UE seulement (PAYANT en France). https://aistudio.google.com/apikey
       - key: GEMINI_API_KEY
         sync: false
-      # Optionnel : clé API Claude (sk-ant-...), utilisée seulement si GEMINI_API_KEY
-      # est vide. Laisse vide si tu utilises Gemini.
+      # Optionnel : clé Claude payante (sk-ant-...), repli si aucune autre clé.
       - key: ANTHROPIC_API_KEY
         sync: false
       # Clés Web Push : copie-les depuis ton fichier local server/.env.
