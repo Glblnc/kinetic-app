@@ -76,7 +76,7 @@ const _t = {
     deloadTitle:"Semaine de décharge",deloadActive:"Décharge active",deloadActiveMsg:"Charges réduites de 10 % cette semaine pour récupérer.",deloadRecMsg:"Tes performances stagnent : une semaine de décharge (charges −10 %) peut relancer la progression.",deloadBtn:"Activer une semaine de décharge",deloadSuggest:"Plateau détecté — pense à une semaine de décharge.",deloadOn:"Semaine de décharge activée",plateauOn:"Plateau sur :",
     progPhotos:"Photos de progression",addPhoto:"Ajouter",photosLocal:"Les photos restent sur cet appareil.",photoAdded:"Photo ajoutée",photoFull:"Stockage des photos plein",
     exProgress:"Progression par exercice",noData:"Pas encore de données",
-    water:"Hydratation",waterGoalLbl:"Objectif",meal:"Repas",grams:"Quantité (g)",
+    water:"Hydratation",waterGoalLbl:"Objectif",meal:"Repas",grams:"Quantité (g)",qty:"Quantité",
     regTitle:"Régularité",regSub:"Ta constance jour après jour",curStreak:"Série en cours",bestStreak:"Record",daysShort:"j",dayS:"jour",daysPl:"jours",calLess:"Moins",calMore:"Plus"
   },
   en: {
@@ -153,7 +153,7 @@ const _t = {
     deloadTitle:"Deload week",deloadActive:"Deload active",deloadActiveMsg:"Loads reduced by 10% this week to recover.",deloadRecMsg:"Your performance is stalling: a deload week (loads −10%) can restart progress.",deloadBtn:"Start a deload week",deloadSuggest:"Plateau detected — consider a deload week.",deloadOn:"Deload week started",plateauOn:"Plateau on:",
     progPhotos:"Progress photos",addPhoto:"Add",photosLocal:"Photos stay on this device.",photoAdded:"Photo added",photoFull:"Photo storage full",
     exProgress:"Per-exercise progress",noData:"No data yet",
-    water:"Water",waterGoalLbl:"Goal",meal:"Meal",grams:"Amount (g)",
+    water:"Water",waterGoalLbl:"Goal",meal:"Meal",grams:"Amount (g)",qty:"Amount",
     regTitle:"Consistency",regSub:"Your day-by-day streak",curStreak:"Current streak",bestStreak:"Best",daysShort:"d",dayS:"day",daysPl:"days",calLess:"Less",calMore:"More"
   }
 };
@@ -650,7 +650,7 @@ function renderNutrition() {
         <div style="margin-top:.8rem"><div class="panel-head"><h3>${_("sf")}</h3></div><input id="foodSearchInput" placeholder="${_("sfp")}" style="margin-bottom:.5rem"><div id="foodSearchResults" class="food-search-results"></div></div>
       </div>
       <div class="panel"><div class="panel-head"><div><h2>${_("fj")}</h2><p>${_("td2")}</p></div><span class="tag good">${formatNumber(totals.calories)} kcal</span></div>
-        <div class="meal-list">${td.map(f=>`<div class="meal-row"><div><b>${esc(f.name)}</b><span>${f.grams?f.grams+" g · ":""}${esc(f.meal)} · ${f.calories} kcal · ${f.protein}g P</span></div><button class="icon-btn" data-remove-food="${f.id}" title="Supprimer"><span data-icon="trash"></span></button></div>`).join("")||`<div class="empty">${_("nf")}</div>`}</div>
+        <div class="meal-list">${td.map(f=>`<div class="meal-row"><div><b>${esc(f.name)}</b><span>${f.grams?f.grams+" "+(f.unit||"g")+" · ":""}${esc(f.meal)} · ${f.calories} kcal · ${f.protein}g P</span></div><button class="icon-btn" data-remove-food="${f.id}" title="Supprimer"><span data-icon="trash"></span></button></div>`).join("")||`<div class="empty">${_("nf")}</div>`}</div>
         <form class="composer" id="foodForm"><input name="foodName" placeholder="${_("afp")}"><button class="btn primary" type="submit"><span data-icon="plus"></span>${_("af")}</button></form>
         <button class="btn ghost block" data-barcode-scan style="margin-top:.5rem"><span data-icon="camera"></span>${_("bs")}</button>
       </div>
@@ -861,10 +861,12 @@ function waterGoal(){return Math.max(1500,Math.round((Number(state.profile.weigh
 function addWater(ml){const d=todayISO();state.water=state.water||{};state.water[d]=Math.max(0,(state.water[d]||0)+ml);saveState();renderNutrition();injectIcons();}
 
 // ===== Nutrition : quantités précises =====
+// Devine si un aliment est liquide pour proposer « ml » par défaut (modifiable).
+function isLiquidName(n){const l=(n||"").toLowerCase();return ["lait","jus","eau","soda","cola","boisson","smoothie","café","cafe","thé","sirop","huile","bouillon","soupe","shake","bière","biere","vin","cidre","kéfir","kefir","milk","juice","oil","soup","drink","beer","wine"].some(w=>l.includes(w));}
 function openFoodModal(food){
   let c=document.getElementById("foodOverlay");if(!c){c=document.createElement("div");c.id="foodOverlay";c.className="scan-overlay";document.body.appendChild(c);}
   c.innerHTML=`<div class="scan-modal"><div class="scan-head"><h3>${esc(food.name)}</h3><button class="btn ghost" id="foodClose">${_("canc")}</button></div>
-    <label class="wide">${_("grams")}<input type="number" id="foodGrams" value="100" min="1"></label>
+    <label class="wide">${_("qty")}<div style="display:flex;gap:.5rem"><input type="number" id="foodGrams" value="100" min="1" style="flex:1"><select id="foodUnit" style="width:5.5rem"><option value="g">g</option><option value="ml">ml</option></select></div></label>
     <label class="wide" style="margin-top:.4rem">${_("meal")}<select id="foodMeal"><option>${_("bf")}</option><option>${_("lu")}</option><option>${_("sn")}</option><option>${_("di")}</option></select></label>
     <div id="foodPreview" style="margin:.6rem 0;font-size:.92rem;color:var(--muted)"></div>
     <button class="btn primary block" id="foodAdd"><span data-icon="plus"></span>${_("af")}</button></div>`;
@@ -873,11 +875,13 @@ function openFoodModal(food){
   const upd=()=>{const g=parseFloat(document.getElementById("foodGrams").value)||0;document.getElementById("foodPreview").innerHTML=`<b>${Math.round(p.cal*g/100)} kcal</b> · ${_("pro")} ${r1(p.pro*g/100)} g · ${_("car")} ${r1(p.car*g/100)} g · ${_("lip")} ${r1(p.fat*g/100)} g`;};
   document.getElementById("foodGrams").addEventListener("input",upd);upd();
   document.getElementById("foodMeal").value=inferMeal();
+  document.getElementById("foodUnit").value=isLiquidName(food.name)?"ml":"g";
   document.getElementById("foodClose").addEventListener("click",()=>c.remove());
   c.addEventListener("click",e=>{if(e.target===c)c.remove();});
   document.getElementById("foodAdd").addEventListener("click",()=>{
     const g=parseFloat(document.getElementById("foodGrams").value)||100;
-    state.foods.push({id:createId("food"),date:todayISO(),name:food.name,meal:document.getElementById("foodMeal").value,grams:g,calories:Math.round(p.cal*g/100),protein:r1(p.pro*g/100),carbs:r1(p.car*g/100),fat:r1(p.fat*g/100)});
+    const unit=document.getElementById("foodUnit").value;
+    state.foods.push({id:createId("food"),date:todayISO(),name:food.name,meal:document.getElementById("foodMeal").value,grams:g,unit,calories:Math.round(p.cal*g/100),protein:r1(p.pro*g/100),carbs:r1(p.car*g/100),fat:r1(p.fat*g/100)});
     c.remove();persistAndRender(_("fda"));
   });
 }
