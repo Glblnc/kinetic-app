@@ -190,33 +190,25 @@ if not DEBUG:
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
 
-# --- Configuration Claude (lue côté serveur uniquement) ---------------------
-# --- Fournisseurs IA --------------------------------------------------------
+# --- Fournisseurs IA (lus côté serveur uniquement) -------------------------
 # Ordre de priorité : Mistral → OpenRouter → Gemini → Anthropic (le premier qui
 # a une clé est utilisé). Mistral et OpenRouter ont des paliers GRATUITS
-# disponibles en France et gèrent la vision. Les clés restent côté serveur.
+# disponibles en France. Les clés restent côté serveur, jamais exposées.
 
-# Mistral (entreprise française, RGPD) — palier gratuit + vision (Pixtral).
+# Mistral (entreprise française, RGPD) — palier gratuit.
 MISTRAL_API_KEY = os.environ.get("MISTRAL_API_KEY", "")
 MISTRAL_MODEL = os.environ.get("MISTRAL_MODEL", "mistral-small-latest")
-MISTRAL_VISION_MODEL = os.environ.get("MISTRAL_VISION_MODEL", "pixtral-12b-2409")
 
-# OpenRouter — palier gratuit, modèles « :free » (dont vision), sans téléphone.
+# OpenRouter — palier gratuit, modèles « :free », sans téléphone.
 OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY", "")
 OPENROUTER_MODEL = os.environ.get("OPENROUTER_MODEL", "meta-llama/llama-3.3-70b-instruct:free")
-OPENROUTER_VISION_MODEL = os.environ.get(
-    "OPENROUTER_VISION_MODEL", "meta-llama/llama-3.2-11b-vision-instruct:free")
 
 # Gemini (Google) — gratuit hors UE, mais PAYANT en UE (France). Conservé au cas où.
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-2.0-flash")
-GEMINI_VISION_MODEL = os.environ.get("GEMINI_VISION_MODEL", GEMINI_MODEL)
 
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
 KINETIC_MODEL = os.environ.get("KINETIC_MODEL", "claude-opus-4-8")
-# Modèle pour la reconnaissance d'aliments par photo (vision). Par défaut le
-# même que le coach ; configurable pour choisir un modèle moins coûteux.
-KINETIC_VISION_MODEL = os.environ.get("KINETIC_VISION_MODEL", KINETIC_MODEL)
 
 # --- Web Push (notifications) ----------------------------------------------
 # La clé publique est transmise au navigateur ; la clé privée reste ici.

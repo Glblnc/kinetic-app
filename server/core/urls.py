@@ -9,7 +9,6 @@ urlpatterns = [
     path("auth/logout", views.logout_view),
     path("state", views.state),
     path("coach", views.coach),
-    path("food-photo", views.food_photo),
     path("push/key", views.push_key),
     path("push/subscribe", views.push_subscribe),
     path("push/unsubscribe", views.push_unsubscribe),

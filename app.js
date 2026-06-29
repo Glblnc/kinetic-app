@@ -77,7 +77,6 @@ const _t = {
     progPhotos:"Photos de progression",addPhoto:"Ajouter",photosLocal:"Les photos restent sur cet appareil.",photoAdded:"Photo ajoutée",photoFull:"Stockage des photos plein",
     exProgress:"Progression par exercice",noData:"Pas encore de données",
     water:"Hydratation",waterGoalLbl:"Objectif",meal:"Repas",grams:"Quantité (g)",
-    fp:"Photographier mon plat",fpAnalyzing:"Analyse de la photo…",fpTitle:"Aliments détectés",fpNone:"Aucun aliment reconnu. Réessaie avec une photo plus nette et bien cadrée.",fpAddAll:"Tout ajouter au journal",fpDisc:"Estimation par IA — vérifie et ajuste les quantités.",fpErr:"Analyse impossible pour le moment. Réessaie.",fpNoKey:"La reconnaissance par photo nécessite la clé IA configurée sur le serveur.",fpAdded:"Aliments ajoutés au journal",
     regTitle:"Régularité",regSub:"Ta constance jour après jour",curStreak:"Série en cours",bestStreak:"Record",daysShort:"j",dayS:"jour",daysPl:"jours",calLess:"Moins",calMore:"Plus"
   },
   en: {
@@ -155,7 +154,6 @@ const _t = {
     progPhotos:"Progress photos",addPhoto:"Add",photosLocal:"Photos stay on this device.",photoAdded:"Photo added",photoFull:"Photo storage full",
     exProgress:"Per-exercise progress",noData:"No data yet",
     water:"Water",waterGoalLbl:"Goal",meal:"Meal",grams:"Amount (g)",
-    fp:"Photograph my plate",fpAnalyzing:"Analyzing photo…",fpTitle:"Detected foods",fpNone:"No food recognized. Try a sharper, well-framed photo.",fpAddAll:"Add all to journal",fpDisc:"AI estimate — review and adjust the quantities.",fpErr:"Analysis failed for now. Try again.",fpNoKey:"Photo recognition needs the AI key configured on the server.",fpAdded:"Foods added to journal",
     regTitle:"Consistency",regSub:"Your day-by-day streak",curStreak:"Current streak",bestStreak:"Best",daysShort:"d",dayS:"day",daysPl:"days",calLess:"Less",calMore:"More"
   }
 };
@@ -453,8 +451,6 @@ function bindEvents() {
     if(tpr){togglePauseRestTimer();return;}
     const bs=e.target.closest("[data-barcode-scan]");
     if(bs){startBarcodeScan();return;}
-    const fph=e.target.closest("[data-food-photo]");
-    if(fph){startFoodPhoto();return;}
     const afd=e.target.closest("[data-add-food-db]");
     if(afd){const fi=foodDatabase.find(f=>f.name===afd.dataset.addFoodDb||f.nameEn===afd.dataset.addFoodDb);if(fi)openFoodModal({name:fi.name,per100:{cal:fi.cal,pro:fi.pro,car:fi.car,fat:fi.fat}});return;}
     const ssn=e.target.closest("[data-start-session]");
@@ -656,7 +652,6 @@ function renderNutrition() {
       <div class="panel"><div class="panel-head"><div><h2>${_("fj")}</h2><p>${_("td2")}</p></div><span class="tag good">${formatNumber(totals.calories)} kcal</span></div>
         <div class="meal-list">${td.map(f=>`<div class="meal-row"><div><b>${esc(f.name)}</b><span>${f.grams?f.grams+" g · ":""}${esc(f.meal)} · ${f.calories} kcal · ${f.protein}g P</span></div><button class="icon-btn" data-remove-food="${f.id}" title="Supprimer"><span data-icon="trash"></span></button></div>`).join("")||`<div class="empty">${_("nf")}</div>`}</div>
         <form class="composer" id="foodForm"><input name="foodName" placeholder="${_("afp")}"><button class="btn primary" type="submit"><span data-icon="plus"></span>${_("af")}</button></form>
-        <button class="btn ghost block" data-food-photo style="margin-top:.5rem"><span data-icon="camera"></span>${_("fp")}</button>
         <button class="btn ghost block" data-barcode-scan style="margin-top:.5rem"><span data-icon="camera"></span>${_("bs")}</button>
       </div>
       <div class="panel"><div class="panel-head"><div><h2>${_("water")}</h2><p>${_("waterGoalLbl")} : ${waterGoal()} ml</p></div><span class="tag good">${waterToday()} ml</span></div>
@@ -884,69 +879,6 @@ function openFoodModal(food){
     const g=parseFloat(document.getElementById("foodGrams").value)||100;
     state.foods.push({id:createId("food"),date:todayISO(),name:food.name,meal:document.getElementById("foodMeal").value,grams:g,calories:Math.round(p.cal*g/100),protein:r1(p.pro*g/100),carbs:r1(p.car*g/100),fat:r1(p.fat*g/100)});
     c.remove();persistAndRender(_("fda"));
-  });
-}
-
-// ===== Nutrition : reconnaissance d'un plat par photo (Claude Vision) =====
-function imageToCompressed(file){
-  return new Promise((resolve,reject)=>{
-    const url=URL.createObjectURL(file),img=new Image();
-    img.onload=()=>{URL.revokeObjectURL(url);const max=1024;let w=img.width,h=img.height;if(w>h&&w>max){h=Math.round(h*max/w);w=max;}else if(h>=w&&h>max){w=Math.round(w*max/h);h=max;}
-      const cv=document.createElement("canvas");cv.width=w;cv.height=h;cv.getContext("2d").drawImage(img,0,0,w,h);
-      const dataUrl=cv.toDataURL("image/jpeg",0.72);resolve({dataUrl,base64:dataUrl.split(",")[1],mediaType:"image/jpeg"});};
-    img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error("img"));};img.src=url;
-  });
-}
-function startFoodPhoto(){
-  const inp=document.createElement("input");inp.type="file";inp.accept="image/*";inp.capture="environment";
-  inp.addEventListener("change",()=>{if(inp.files&&inp.files[0])analyzeFoodPhoto(inp.files[0]);});inp.click();
-}
-function closeFoodPhoto(){const o=document.getElementById("foodPhotoOverlay");if(o)o.remove();}
-function showFoodPhotoLoading(){
-  let c=document.getElementById("foodPhotoOverlay");if(!c){c=document.createElement("div");c.id="foodPhotoOverlay";c.className="scan-overlay";document.body.appendChild(c);}
-  c.innerHTML=`<div class="scan-modal"><div class="fp-loading"><div class="spinner"></div><p>${_("fpAnalyzing")}</p></div></div>`;
-}
-async function analyzeFoodPhoto(file){
-  showFoodPhotoLoading();
-  try{
-    const img=await imageToCompressed(file);
-    const data=await api("/api/food-photo",{method:"POST",body:{image:img.base64,mediaType:img.mediaType,language:state.settings.language}});
-    openFoodPhotoReview((data&&data.foods)||[],(data&&data.note)||"");
-  }catch(err){
-    closeFoodPhoto();
-    showToast(err&&err.status===503?_("fpNoKey"):((err&&err.message)||_("fpErr")));
-  }
-}
-function openFoodPhotoReview(foods,note){
-  let c=document.getElementById("foodPhotoOverlay");if(!c){c=document.createElement("div");c.id="foodPhotoOverlay";c.className="scan-overlay";document.body.appendChild(c);}
-  if(!foods.length){
-    c.innerHTML=`<div class="scan-modal"><div class="scan-head"><h3>${_("fpTitle")}</h3><button class="btn ghost" id="fpClose">${_("canc")}</button></div><div class="empty">${esc(note||_("fpNone"))}</div></div>`;
-    document.getElementById("fpClose").addEventListener("click",closeFoodPhoto);c.addEventListener("click",e=>{if(e.target===c)closeFoodPhoto();});return;
-  }
-  const items=foods.map(f=>{const g=f.grams||1;return{per:{cal:f.calories/g,pro:f.protein/g,car:f.carbs/g,fat:f.fat/g}};});
-  const r1=x=>Math.round(x*10)/10;
-  const rows=foods.map((f,i)=>`<div class="fp-row" data-i="${i}">
-      <input class="fp-name" data-i="${i}" value="${esc(f.name)}">
-      <div class="fp-line"><label>${_("grams")} <input type="number" class="fp-grams" data-i="${i}" value="${f.grams}" min="0"></label><span class="fp-macros" data-i="${i}"></span><button class="icon-btn fp-del" data-i="${i}" title="×"><span data-icon="trash"></span></button></div>
-    </div>`).join("");
-  c.innerHTML=`<div class="scan-modal"><div class="scan-head"><h3>${_("fpTitle")}</h3><button class="btn ghost" id="fpClose">${_("canc")}</button></div>
-    <label class="wide">${_("meal")}<select id="fpMeal"><option>${_("bf")}</option><option>${_("lu")}</option><option>${_("sn")}</option><option>${_("di")}</option></select></label>
-    <div class="fp-list">${rows}</div>
-    ${note?`<p class="fp-note">${esc(note)}</p>`:""}
-    <p class="fp-disc">${_("fpDisc")}</p>
-    <button class="btn primary block" id="fpAddAll"><span data-icon="plus"></span>${_("fpAddAll")}</button></div>`;
-  injectIcons();
-  document.getElementById("fpMeal").value=inferMeal();
-  const updRow=i=>{const el=c.querySelector('.fp-grams[data-i="'+i+'"]');if(!el)return;const g=parseFloat(el.value)||0,p=items[i].per;c.querySelector('.fp-macros[data-i="'+i+'"]').innerHTML=`<b>${Math.round(p.cal*g)} kcal</b> · P ${r1(p.pro*g)} · G ${r1(p.car*g)} · L ${r1(p.fat*g)}`;};
-  foods.forEach((_f,i)=>updRow(i));
-  c.querySelectorAll(".fp-grams").forEach(inp=>inp.addEventListener("input",()=>updRow(+inp.dataset.i)));
-  c.querySelectorAll(".fp-del").forEach(b=>b.addEventListener("click",()=>{const row=c.querySelector('.fp-row[data-i="'+b.dataset.i+'"]');if(row)row.remove();}));
-  document.getElementById("fpClose").addEventListener("click",closeFoodPhoto);
-  c.addEventListener("click",e=>{if(e.target===c)closeFoodPhoto();});
-  document.getElementById("fpAddAll").addEventListener("click",()=>{
-    const meal=document.getElementById("fpMeal").value;let added=0;
-    c.querySelectorAll(".fp-row").forEach(row=>{const i=+row.dataset.i,name=(row.querySelector(".fp-name").value||"").trim(),g=parseFloat(row.querySelector(".fp-grams").value)||0;if(!name||g<=0)return;const p=items[i].per;state.foods.push({id:createId("food"),date:todayISO(),name,meal,grams:Math.round(g),calories:Math.round(p.cal*g),protein:r1(p.pro*g),carbs:r1(p.car*g),fat:r1(p.fat*g)});added++;});
-    closeFoodPhoto();added?persistAndRender(_("fpAdded")):showToast(_("fpNone"));
   });
 }
 
