@@ -51,6 +51,7 @@ const _t = {
     rca:"Récupération",rcad:"Atteins 100% de récupération",stk:"Série en cours",stkd:"2 semaines consécutives",
     fw2:"Semaine complète",fw2d:"Toutes les séances planifiées faites",fwt:"50 séances",fwtd:"Enregistre 50 séances d'entraînement",
     olp:"Surcharge progressive",olpd:"Augmente la charge d'un exercice",
+    st7:"Régulier",st7d:"7 jours d'affilée",st30:"Discipliné",st30d:"30 jours d'affilée",st100:"Inarrêtable",st100d:"100 jours d'affilée",
     po:"Surcharge progressive",aa:"Ajustement auto",nsl:"Charge proposée",pp2:"Performance précédente",
     inc:"Augmentation",th:"Trop lourd",jr:"Correct",ci:"Peut augmenter",
     rs2:"Rappel programmé",rsa:"Rappel déjà actif",rnd:"Active les notifications dans les paramètres",
@@ -127,6 +128,7 @@ const _t = {
     rca:"Recovery",rcad:"Reach 100% recovery",stk:"On a Streak",stkd:"2 consecutive weeks without skipping",
     fw2:"Full Week",fw2d:"Complete all planned sessions",fwt:"50 Workouts",fwtd:"Record 50 workout sessions",
     olp:"Progressive Overload",olpd:"Increase weight on an exercise",
+    st7:"Consistent",st7d:"7-day streak",st30:"Disciplined",st30d:"30-day streak",st100:"Unstoppable",st100d:"100-day streak",
     po:"Progressive Overload",aa:"Auto Adjust",nsl:"Suggested Load",pp2:"Previous Performance",
     inc:"Increase",th:"Too Heavy",jr:"Just Right",ci:"Could Increase",
     rs2:"Reminder scheduled",rsa:"Reminder already active",rnd:"Enable notifications in settings",
@@ -265,7 +267,10 @@ const achievementsDef = [
   {id:"variety-5",ik:"poly",idk:"polyd",chk:()=>new Set(state.workouts.map(w=>w.exerciseId)).size>=5},
   {id:"full-week",ik:"fw2",idk:"fw2d",chk:()=>weeklyWorkoutStats().sessions>=state.profile.sessions},
   {id:"50-workouts",ik:"fwt",idk:"fwtd",chk:()=>state.workouts.length>=50},
-  {id:"progressive-overload",ik:"olp",idk:"olpd",chk:()=>(state.overloadCount||0)>=1}
+  {id:"progressive-overload",ik:"olp",idk:"olpd",chk:()=>(state.overloadCount||0)>=1},
+  {id:"streak-7",ik:"st7",idk:"st7d",chk:()=>Math.max(longestStreak(),state.bestStreak||0)>=7},
+  {id:"streak-30",ik:"st30",idk:"st30d",chk:()=>Math.max(longestStreak(),state.bestStreak||0)>=30},
+  {id:"streak-100",ik:"st100",idk:"st100d",chk:()=>Math.max(longestStreak(),state.bestStreak||0)>=100}
 ];
 
 const defaultState = {

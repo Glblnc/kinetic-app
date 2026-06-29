@@ -13,4 +13,5 @@ urlpatterns = [
     path("push/subscribe", views.push_subscribe),
     path("push/unsubscribe", views.push_unsubscribe),
     path("push/test", views.push_test),
+    path("cron/reminders", views.cron_reminders),
 ]

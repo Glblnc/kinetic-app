@@ -40,6 +40,10 @@ services:
       # Active HSTS (1 an) une fois le HTTPS validé.
       - key: DJANGO_HSTS_SECONDS
         value: "31536000"
+      # Jeton secret du cron des rappels (généré par Render). À copier dans
+      # cron-job.org pour appeler /api/cron/reminders toutes les ~15 min.
+      - key: KINETIC_CRON_TOKEN
+        generateValue: true
       # --- À renseigner dans le tableau de bord Render (jamais dans le code) ---
       # Ta clé API Claude (sk-ant-...).
       - key: ANTHROPIC_API_KEY

@@ -4,6 +4,7 @@ Toutes les vues sensibles exigent une session authentifiée. La clé Claude n'es
 jamais transmise au navigateur : seul ce serveur l'utilise dans /api/coach.
 """
 import datetime
+import hmac
 import json
 
 from django.conf import settings
@@ -11,6 +12,7 @@ from django.contrib.auth import authenticate, get_user_model, login, logout
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
 from .models import UserState
@@ -309,6 +311,28 @@ def push_unsubscribe(request):
         qs = qs.filter(endpoint=endpoint)
     qs.delete()
     return JsonResponse({"ok": True})
+
+
+# --- Cron : déclenche les rappels via une URL (hébergeur ou cron-job.org) ----
+@csrf_exempt
+@require_http_methods(["GET", "POST"])
+def cron_reminders(request):
+    """Envoie les rappels dus (séance + protection de série).
+
+    Protégé par un jeton secret (KINETIC_CRON_TOKEN) à passer dans l'en-tête
+    `X-Cron-Token` ou le paramètre `?token=`. À appeler toutes les ~15 min par
+    un service externe (ex. cron-job.org) puisque Render gratuit n'a pas de cron.
+    """
+    token = settings.KINETIC_CRON_TOKEN
+    if not token:
+        return JsonResponse({"error": "Cron non configuré sur le serveur."}, status=503)
+    given = request.headers.get("X-Cron-Token") or request.GET.get("token") or ""
+    if not hmac.compare_digest(str(given), str(token)):
+        return JsonResponse({"error": "Jeton invalide."}, status=403)
+    from .reminders import run_reminders
+
+    sessions, streaks = run_reminders()
+    return JsonResponse({"ok": True, "sessionReminders": sessions, "streakNudges": streaks})
 
 
 @require_http_methods(["POST"])

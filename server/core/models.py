@@ -18,6 +18,8 @@ class UserState(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     # Évite d'envoyer deux fois le rappel de séance le même jour.
     last_reminded_on = models.DateField(null=True, blank=True)
+    # Évite d'envoyer deux fois le rappel « protège ta série » le même jour.
+    last_streak_nudge_on = models.DateField(null=True, blank=True)
 
     def __str__(self):
         return f"État de {self.user.username}"

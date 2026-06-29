@@ -199,3 +199,8 @@ KINETIC_MODEL = os.environ.get("KINETIC_MODEL", "claude-opus-4-8")
 VAPID_PUBLIC_KEY = os.environ.get("VAPID_PUBLIC_KEY", "")
 VAPID_PRIVATE_KEY = os.environ.get("VAPID_PRIVATE_KEY", "")
 VAPID_CLAIM_SUB = os.environ.get("VAPID_CLAIM_SUB", "mailto:admin@example.com")
+
+# --- Cron des rappels -------------------------------------------------------
+# Jeton secret protégeant l'URL /api/cron/reminders (appelée par un service
+# externe type cron-job.org). Vide = endpoint désactivé.
+KINETIC_CRON_TOKEN = os.environ.get("KINETIC_CRON_TOKEN", "")
