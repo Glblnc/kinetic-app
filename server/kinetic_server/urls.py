@@ -31,5 +31,7 @@ urlpatterns = [
     re_path(r"^(?P<path>app\.js|styles\.css|sw\.js|manifest\.webmanifest)$", frontend_asset),
     re_path(r"^assets/(?P<path>.*)$",
             lambda request, path: serve(request, path, document_root=FRONTEND_DIR / "assets")),
+    # /index.html sert aussi l'app (start_url du manifeste, précache du SW).
+    re_path(r"^index\.html$", index),
     path("", index, name="index"),
 ]

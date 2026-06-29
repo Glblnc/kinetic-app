@@ -2,8 +2,8 @@
   "name": "Kinetic",
   "short_name": "Kinetic",
   "description": "Coach fitness, nutrition et progression.",
-  "start_url": "./index.html",
-  "scope": "./",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#090909",
@@ -33,11 +33,11 @@
   "shortcuts": [
     {
       "name": "Entraînement",
-      "url": "./index.html#training"
+      "url": "/#training"
     },
     {
       "name": "Nutrition",
-      "url": "./index.html#nutrition"
+      "url": "/#nutrition"
     }
   ]
 }
