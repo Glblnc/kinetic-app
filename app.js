@@ -77,7 +77,7 @@ const _t = {
     progPhotos:"Photos de progression",addPhoto:"Ajouter",photosLocal:"Les photos restent sur cet appareil.",photoAdded:"Photo ajoutée",photoFull:"Stockage des photos plein",
     exProgress:"Progression par exercice",noData:"Pas encore de données",
     water:"Hydratation",waterGoalLbl:"Objectif",meal:"Repas",grams:"Quantité (g)",qty:"Quantité",
-    regTitle:"Régularité",regSub:"Ta constance jour après jour",curStreak:"Série en cours",bestStreak:"Record",daysShort:"j",dayS:"jour",daysPl:"jours",calLess:"Moins",calMore:"Plus"
+    regTitle:"Régularité",regSub:"Ta constance jour après jour",curStreak:"Série en cours",bestStreak:"Record",daysShort:"j",dayS:"jour",daysPl:"jours",calLess:"Moins",calMore:"Plus",restDayMsg:"Jour de repos — récupération 💤"
   },
   en: {
     app:"Kinetic",tag:"AI Fitness Coach",h:"Home",p:"Profile",t:"Training",n:"Nutrition",g:"Progress",c:"AI Coach",
@@ -154,7 +154,7 @@ const _t = {
     progPhotos:"Progress photos",addPhoto:"Add",photosLocal:"Photos stay on this device.",photoAdded:"Photo added",photoFull:"Photo storage full",
     exProgress:"Per-exercise progress",noData:"No data yet",
     water:"Water",waterGoalLbl:"Goal",meal:"Meal",grams:"Amount (g)",qty:"Amount",
-    regTitle:"Consistency",regSub:"Your day-by-day streak",curStreak:"Current streak",bestStreak:"Best",daysShort:"d",dayS:"day",daysPl:"days",calLess:"Less",calMore:"More"
+    regTitle:"Consistency",regSub:"Your day-by-day streak",curStreak:"Current streak",bestStreak:"Best",daysShort:"d",dayS:"day",daysPl:"days",calLess:"Less",calMore:"More",restDayMsg:"Rest day — recovery 💤"
   }
 };
 
@@ -449,6 +449,8 @@ function bindEvents() {
     if(cr){cancelRestTimer();return;}
     const tpr=e.target.closest("[data-toggle-pause-rest]");
     if(tpr){togglePauseRestTimer();return;}
+    const cd=e.target.closest("[data-cal-day]");
+    if(cd){selectedPlanDay=+cd.dataset.calDay;renderDashboard();injectIcons();return;}
     const bs=e.target.closest("[data-barcode-scan]");
     if(bs){startBarcodeScan();return;}
     const afd=e.target.closest("[data-add-food-db]");
@@ -546,6 +548,9 @@ function longestStreak(){
   for(let i=1;i<dates.length;i++){const p=new Date(dates[i-1]);p.setUTCDate(p.getUTCDate()+1);run=isoStep(p)===dates[i]?run+1:1;if(run>best)best=run;}
   return best;
 }
+// Jour sélectionné dans le calendrier (0=Lun … 6=Dim) pour afficher sa séance.
+let selectedPlanDay=null;
+function todayWeekday(){return (new Date(todayISO()).getUTCDay()+6)%7;}
 function streakCalendar(){
   const set=activeDateSet(),today=todayISO(),t=new Date(today);
   const dow=(t.getUTCDay()+6)%7,weekStart=new Date(t);weekStart.setUTCDate(t.getUTCDate()-dow);
@@ -554,18 +559,32 @@ function streakCalendar(){
   for(let w=0;w<WEEKS;w++)for(let dd=0;dd<7;dd++){
     const c=new Date(start);c.setUTCDate(start.getUTCDate()+w*7+dd);const ds=isoStep(c),future=ds>today;
     const lvl=(!future&&set.has(ds))?(hasWorkoutOn(ds)?2:1):0;
-    cells+=`<div class="cal-cell lvl-${lvl}${ds===today?" today":""}${future?" future":""}" title="${esc(formatDate(ds))}"></div>`;
+    cells+=`<div class="cal-cell lvl-${lvl}${ds===today?" today":""}${future?" future":""}${dd===selectedPlanDay?" col-sel":""}" data-cal-day="${dd}" title="${esc(formatDate(ds))}"></div>`;
   }
   const days=["L","M","M","J","V","S","D"];
-  return `<div class="cal-head">${days.map(d=>`<span>${d}</span>`).join("")}</div><div class="cal-grid">${cells}</div>`;
+  return `<div class="cal-head">${days.map((d,i)=>`<span data-cal-day="${i}"${i===selectedPlanDay?' class="selected"':''}>${d}</span>`).join("")}</div><div class="cal-grid">${cells}</div>`;
+}
+// Programme prévu pour le jour sélectionné dans le calendrier.
+function daySessionPanel(){
+  const lang=state.settings.language==="en"?"en":"fr";
+  const names={fr:["Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi","Dimanche"],en:["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"]}[lang];
+  const idx=selectedPlanDay==null?todayWeekday():selectedPlanDay;
+  const d=state.plan&&state.plan.week?state.plan.week[idx]:null;
+  const todayTag=idx===todayWeekday()?(lang==="en"?" · today":" · aujourd'hui"):"";
+  if(!d||!d.active||!d.exercises.length){
+    return `<div class="day-session"><div class="panel-head"><div><h3>${names[idx]}${todayTag}</h3><p>${_("rst")}</p></div></div><div class="empty">${_("restDayMsg")}</div></div>`;
+  }
+  return `<div class="day-session"><div class="panel-head"><div><h3>${names[idx]}${todayTag}</h3><p>${esc(d.focus)} · ${d.duration} min</p></div><span class="tag warn">${d.exercises.length} ex.</span></div><div class="exercise-list">${d.exercises.map(exerciseCard).join("")}</div></div>`;
 }
 function streakCard(){
   const cur=currentStreak(),best=Math.max(longestStreak(),state.bestStreak||0);
   state.bestStreak=best;
+  if(selectedPlanDay==null)selectedPlanDay=todayWeekday();
   return `<div class="panel streak-panel"><div class="panel-head"><div><h2>${_("regTitle")}</h2><p>${_("regSub")}</p></div><span class="tag ${cur>0?"good":""}">🔥 ${cur} ${_("daysShort")}</span></div>
     <div class="streak-stats"><div class="mini-metric"><span>${_("curStreak")}</span><strong>🔥 ${cur} ${cur>1?_("daysPl"):_("dayS")}</strong></div><div class="mini-metric"><span>${_("bestStreak")}</span><strong>🏆 ${best} ${best>1?_("daysPl"):_("dayS")}</strong></div></div>
     ${streakCalendar()}
     <div class="cal-legend"><span>${_("calLess")}</span><i class="cal-cell lvl-0"></i><i class="cal-cell lvl-1"></i><i class="cal-cell lvl-2"></i><span>${_("calMore")}</span></div>
+    ${daySessionPanel()}
   </div>`;
 }
 
