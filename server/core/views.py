@@ -225,7 +225,8 @@ def _sanitize_messages(raw):
 def coach(request):
     if not request.user.is_authenticated:
         return JsonResponse({"error": "Authentification requise."}, status=401)
-    if not settings.ANTHROPIC_API_KEY:
+    from . import ai
+    if not ai.available():
         return JsonResponse(
             {"error": "Coach IA non configuré sur le serveur (clé absente)."}, status=503
         )
@@ -242,34 +243,9 @@ def coach(request):
     system_prompt = _build_system_prompt(obj.data or {}, body.get("language"))
 
     try:
-        import anthropic
-    except ImportError:
-        return JsonResponse({"error": "SDK Anthropic absent côté serveur."}, status=503)
-
-    try:
-        client = anthropic.Anthropic(api_key=settings.ANTHROPIC_API_KEY)
-        resp = client.messages.create(
-            model=settings.KINETIC_MODEL,
-            max_tokens=1024,
-            system=system_prompt,
-            messages=messages,
-        )
-    except anthropic.AuthenticationError:
-        return JsonResponse({"error": "Clé Claude invalide côté serveur."}, status=502)
-    except anthropic.RateLimitError:
-        return JsonResponse({"error": "Limite de débit Claude atteinte, réessaie."}, status=429)
-    except anthropic.APIStatusError as exc:
-        return JsonResponse({"error": f"Erreur API Claude ({exc.status_code})."}, status=502)
-    except anthropic.APIConnectionError:
-        return JsonResponse({"error": "Connexion à Claude impossible."}, status=502)
-    except Exception:
-        return JsonResponse({"error": "Erreur inattendue du coach IA."}, status=500)
-
-    text = "".join(
-        getattr(b, "text", "") for b in resp.content if getattr(b, "type", "") == "text"
-    ).strip()
-    if not text:
-        return JsonResponse({"error": "Réponse vide du coach IA."}, status=502)
+        text = ai.chat(system_prompt, messages)
+    except ai.AIError as exc:
+        return JsonResponse({"error": str(exc)}, status=exc.status)
     return JsonResponse({"reply": text})
 
 
@@ -325,7 +301,8 @@ def food_photo(request):
     """Analyse la photo d'un repas et renvoie les aliments détectés (estimation)."""
     if not request.user.is_authenticated:
         return JsonResponse({"error": "Authentification requise."}, status=401)
-    if not settings.ANTHROPIC_API_KEY:
+    from . import ai
+    if not ai.available():
         return JsonResponse(
             {"error": "Reconnaissance par photo non configurée sur le serveur (clé absente)."},
             status=503,
@@ -371,39 +348,10 @@ def food_photo(request):
         user_text = "Voici la photo de mon repas. Identifie tous les aliments présents et estime les quantités."
 
     try:
-        import anthropic
-    except ImportError:
-        return JsonResponse({"error": "SDK Anthropic absent côté serveur."}, status=503)
+        text = ai.vision(system_prompt, user_text, image, media_type)
+    except ai.AIError as exc:
+        return JsonResponse({"error": str(exc)}, status=exc.status)
 
-    try:
-        client = anthropic.Anthropic(api_key=settings.ANTHROPIC_API_KEY)
-        resp = client.messages.create(
-            model=settings.KINETIC_VISION_MODEL,
-            max_tokens=1024,
-            system=system_prompt,
-            messages=[{
-                "role": "user",
-                "content": [
-                    {"type": "image", "source": {
-                        "type": "base64", "media_type": media_type, "data": image}},
-                    {"type": "text", "text": user_text},
-                ],
-            }],
-        )
-    except anthropic.AuthenticationError:
-        return JsonResponse({"error": "Clé Claude invalide côté serveur."}, status=502)
-    except anthropic.RateLimitError:
-        return JsonResponse({"error": "Limite de débit Claude atteinte, réessaie."}, status=429)
-    except anthropic.APIStatusError as exc:
-        return JsonResponse({"error": f"Erreur API Claude ({exc.status_code})."}, status=502)
-    except anthropic.APIConnectionError:
-        return JsonResponse({"error": "Connexion à Claude impossible."}, status=502)
-    except Exception:
-        return JsonResponse({"error": "Erreur inattendue de l'analyse photo."}, status=500)
-
-    text = "".join(
-        getattr(b, "text", "") for b in resp.content if getattr(b, "type", "") == "text"
-    ).strip()
     parsed = _extract_json(text)
     if not isinstance(parsed, dict):
         return JsonResponse({"error": "Réponse illisible du modèle."}, status=502)

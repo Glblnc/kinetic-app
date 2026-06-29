@@ -45,7 +45,13 @@ services:
       - key: KINETIC_CRON_TOKEN
         generateValue: true
       # --- À renseigner dans le tableau de bord Render (jamais dans le code) ---
-      # Ta clé API Claude (sk-ant-...).
+      # Clé IA GRATUITE (Google Gemini, palier gratuit) — active le coach IA et
+      # la reconnaissance de plat par photo sans payer. À créer sur
+      # https://aistudio.google.com/apikey puis coller ici.
+      - key: GEMINI_API_KEY
+        sync: false
+      # Optionnel : clé API Claude (sk-ant-...), utilisée seulement si GEMINI_API_KEY
+      # est vide. Laisse vide si tu utilises Gemini.
       - key: ANTHROPIC_API_KEY
         sync: false
       # Clés Web Push : copie-les depuis ton fichier local server/.env.

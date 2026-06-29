@@ -191,6 +191,14 @@ if not DEBUG:
     SECURE_HSTS_PRELOAD = True
 
 # --- Configuration Claude (lue côté serveur uniquement) ---------------------
+# --- Fournisseurs IA --------------------------------------------------------
+# Gemini (Google) est utilisé en priorité s'il a une clé : il a un palier
+# GRATUIT et gère la vision. Anthropic (Claude) sert de repli si seule sa clé
+# est présente. Les clés restent côté serveur, jamais exposées au navigateur.
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
+GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-2.0-flash")
+GEMINI_VISION_MODEL = os.environ.get("GEMINI_VISION_MODEL", GEMINI_MODEL)
+
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
 KINETIC_MODEL = os.environ.get("KINETIC_MODEL", "claude-opus-4-8")
 # Modèle pour la reconnaissance d'aliments par photo (vision). Par défaut le
