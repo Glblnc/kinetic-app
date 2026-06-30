@@ -208,7 +208,14 @@ const exerciseLibrary = [
   {id:"pushup",name:"Pompes",nameEn:"Push-ups",muscles:["Pectoraux","Triceps","Gainage"],equipment:["Poids du corps"],sets:3,reps:"15-20",rest:60,load:0,cue:"Corps aligné, coudes à 45°.",cueEn:"Body aligned, elbows at 45°.",alternative:"Pompes sur genoux",alternativeEn:"Knee push-ups",demo:"press"},
   {id:"leg-raise",name:"Relevé de jambes",nameEn:"Leg Raises",muscles:["Gainage"],equipment:["Poids du corps"],sets:3,reps:"12-15",rest:45,load:0,cue:"Dos au sol, jambes tendues.",cueEn:"Back on ground, straight legs.",alternative:"Crunches",alternativeEn:"Crunches",demo:"plank"},
   {id:"hip-thrust",name:"Hip thrust",nameEn:"Hip Thrust",muscles:["Fessiers","Ischios"],equipment:["Barre","Banc"],sets:4,reps:"10-12",rest:90,load:60,cue:"Épaules sur le banc, monte les hanches.",cueEn:"Shoulders on bench, drive hips up.",alternative:"Pont fessier",alternativeEn:"Glute bridge",demo:"squat"},
-  {id:"calf-raise",name:"Mollets debout",nameEn:"Standing Calf Raise",muscles:["Mollets"],equipment:["Poids du corps","Haltères"],sets:4,reps:"15-20",rest:45,load:20,cue:"Amplitude complète, pause haute.",cueEn:"Full range, pause at top.",alternative:"Mollets assis",alternativeEn:"Seated calf raises",demo:"press"}
+  {id:"calf-raise",name:"Mollets debout",nameEn:"Standing Calf Raise",muscles:["Mollets"],equipment:["Poids du corps","Haltères"],sets:4,reps:"15-20",rest:45,load:20,cue:"Amplitude complète, pause haute.",cueEn:"Full range, pause at top.",alternative:"Mollets assis",alternativeEn:"Seated calf raises",demo:"press"},
+  {id:"lat-pulldown",name:"Tirage vertical",nameEn:"Lat Pulldown",muscles:["Dos","Biceps"],equipment:["Poulie haute/basse"],sets:4,reps:"8-12",rest:90,load:45,cue:"Tire la barre vers le haut de la poitrine, coudes vers le bas.",cueEn:"Pull the bar to upper chest, elbows down.",alternative:"Traction assistée",alternativeEn:"Assisted pull-up",demo:"pull"},
+  {id:"seated-row",name:"Tirage horizontal",nameEn:"Seated Cable Row",muscles:["Dos","Biceps"],equipment:["Poulie haute/basse"],sets:4,reps:"10-12",rest:90,load:45,cue:"Dos droit, tire la poignée vers le nombril, serre les omoplates.",cueEn:"Straight back, pull to navel, squeeze shoulder blades.",alternative:"Rowing haltère",alternativeEn:"Dumbbell row",demo:"row"},
+  {id:"triceps-pushdown",name:"Extension triceps poulie",nameEn:"Triceps Pushdown",muscles:["Triceps"],equipment:["Poulie haute/basse"],sets:3,reps:"12-15",rest:60,load:25,cue:"Coudes collés au corps, déplie complètement.",cueEn:"Elbows pinned, full extension.",alternative:"Extension triceps",alternativeEn:"Triceps extension",demo:"triceps"},
+  {id:"ez-curl",name:"Curl barre EZ",nameEn:"EZ-Bar Curl",muscles:["Biceps"],equipment:["Barre curl"],sets:3,reps:"8-12",rest:60,load:25,cue:"Coudes fixes, monte la barre sans balancer.",cueEn:"Fixed elbows, no swinging.",alternative:"Curl haltères",alternativeEn:"Dumbbell curl",demo:"curl"},
+  {id:"skullcrusher",name:"Extension triceps EZ",nameEn:"EZ-Bar Skullcrusher",muscles:["Triceps"],equipment:["Barre curl"],sets:3,reps:"10-12",rest:75,load:25,cue:"Coudes serrés, descends la barre vers le front.",cueEn:"Elbows tucked, lower to forehead.",alternative:"Extension triceps",alternativeEn:"Triceps extension",demo:"triceps"},
+  {id:"leg-ext",name:"Leg extension",nameEn:"Leg Extension",muscles:["Quadriceps"],equipment:["Leg curl/extension"],sets:3,reps:"12-15",rest:75,load:40,cue:"Déplie les genoux, pause haute, descente contrôlée.",cueEn:"Extend knees, pause at top, slow descent.",alternative:"Squat goblet",alternativeEn:"Goblet squat",demo:"squat",limitation:"genou"},
+  {id:"leg-curl",name:"Leg curl",nameEn:"Leg Curl",muscles:["Ischios"],equipment:["Leg curl/extension"],sets:3,reps:"12-15",rest:75,load:35,cue:"Ramène les talons vers les fessiers, contrôle le retour.",cueEn:"Curl heels to glutes, control the return.",alternative:"Soulevé de terre roumain",alternativeEn:"Romanian deadlift",demo:"squat"}
 ];
 
 const foodDatabase = [
@@ -328,7 +335,13 @@ async function bootstrap(){
   updateSyncStatus();
 }
 
+function normalizeState(){
+  const p=state.profile;if(!p)return;
+  if(Array.isArray(p.equipment))p.equipment=p.equipment.map(x=>x==="Poulie"?"Poulie haute/basse":x);
+  if(p.sessionDuration==null)p.sessionDuration=60;
+}
 function startApp(){
+  normalizeState();
   const shell=document.querySelector(".app-shell"); if(shell)shell.style.display="";
   const mn=document.querySelector(".mobile-nav"); if(mn)mn.style.display="";
   const a=document.getElementById("authOverlay"); if(a)a.remove();
@@ -497,7 +510,7 @@ function renderOnboarding() {
   const shell=document.querySelector(".app-shell");shell.style.display="none";
   const c=document.createElement("div");c.id="onboardingContainer";c.className="onboarding-overlay";document.body.appendChild(c);
   function rs(){
-    const p=state.profile;const eq=["Haltères","Barre","Banc","Poulie","Barre de traction","Barre de dips","Élastiques","Poids du corps"];
+    const p=state.profile;const eq=["Haltères","Barre","Banc","Barre curl","Poulie haute/basse","Leg curl/extension","Barre de traction","Barre de dips","Élastiques","Poids du corps"];
     let h=`<div class="onboarding-modal"><div class="onboarding-header"><h2>${_("onb")}</h2><p>${_("onbs")}</p><div class="onboarding-steps">`;
     for(let i=0;i<total;i++)h+=`<div class="onboarding-dot ${i===step?"active":i<step?"done":""}"></div>`;
     h+=`</div></div><div class="onboarding-body">`;
@@ -604,7 +617,7 @@ function renderDashboard() {
 }
 
 function renderProfile() {
-  const p=state.profile,targets=calculateNutrition(p),allEq=["Haltères","Barre","Banc","Poulie","Barre de traction","Barre de dips","Élastiques","Poids du corps"];
+  const p=state.profile,targets=calculateNutrition(p),allEq=["Haltères","Barre","Banc","Barre curl","Poulie haute/basse","Leg curl/extension","Barre de traction","Barre de dips","Élastiques","Poids du corps"];
   document.getElementById("profileView").innerHTML=`
     <div class="grid cols-2">
       <div class="panel"><div class="panel-head"><div><h2>${_("up")}</h2><p>${_("sv")}</p></div><span class="tag warn">${_("fr")}</span></div>
@@ -1029,7 +1042,8 @@ function demoSvg(id){
     bench:bench,"db-press":bench,row:row,"goblet-squat":goblet,rdl:hinge,ohp:press,
     lunge:lunge,plank:plank,pullup:pull,chinup:pull,"hang-leg-raise":hangleg,
     squat:squat,deadlift:deadlift,dips:dip,"dips-triceps":dip,curl:curl,ext:triceps,
-    "lat-raise":latraise,pushup:pushup,"leg-raise":legraise,"hip-thrust":hipthrust,"calf-raise":calf
+    "lat-raise":latraise,pushup:pushup,"leg-raise":legraise,"hip-thrust":hipthrust,"calf-raise":calf,
+    "lat-pulldown":pull,"seated-row":row,"triceps-pushdown":triceps,"ez-curl":curl,"skullcrusher":triceps,"leg-ext":squat,"leg-curl":hinge
   };
   return map[id]||squat;
 }
