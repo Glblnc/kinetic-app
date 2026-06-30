@@ -577,6 +577,7 @@ svg {
   display: grid;
   gap: .34rem;
   align-content: space-between;
+  cursor: pointer;
 }
 
 .day strong {
@@ -591,6 +592,10 @@ svg {
 .day.active {
   border-color: rgba(223, 31, 31, .7);
   background: rgba(223, 31, 31, .14);
+}
+.day.selected {
+  box-shadow: 0 0 0 2px var(--red, #e53935);
+  border-color: var(--red, #e53935);
 }
 
 .exercise-list,

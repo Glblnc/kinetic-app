@@ -450,7 +450,7 @@ function bindEvents() {
     const tpr=e.target.closest("[data-toggle-pause-rest]");
     if(tpr){togglePauseRestTimer();return;}
     const cd=e.target.closest("[data-cal-day]");
-    if(cd){selectedPlanDay=+cd.dataset.calDay;renderDashboard();injectIcons();return;}
+    if(cd){selectedPlanDay=+cd.dataset.calDay;renderAll();return;}
     const bs=e.target.closest("[data-barcode-scan]");
     if(bs){startBarcodeScan();return;}
     const afd=e.target.closest("[data-add-food-db]");
@@ -574,7 +574,7 @@ function daySessionPanel(){
   if(!d||!d.active||!d.exercises.length){
     return `<div class="day-session"><div class="panel-head"><div><h3>${names[idx]}${todayTag}</h3><p>${_("rst")}</p></div></div><div class="empty">${_("restDayMsg")}</div></div>`;
   }
-  return `<div class="day-session"><div class="panel-head"><div><h3>${names[idx]}${todayTag}</h3><p>${esc(d.focus)} · ${d.duration} min</p></div><span class="tag warn">${d.exercises.length} ex.</span></div><div class="exercise-list">${d.exercises.map(exerciseCard).join("")}</div></div>`;
+  return `<div class="day-session"><div class="panel-head"><div><h3>${names[idx]}${todayTag}</h3><p>${esc(d.focus)} · ${d.duration} min</p></div><span class="tag warn">${d.exercises.length} ex.</span></div><button class="btn primary block" data-start-session style="margin:.2rem 0 .7rem"><span data-icon="check"></span>${_("startSession")}</button><div class="exercise-list">${d.exercises.map(exerciseCard).join("")}</div></div>`;
 }
 function streakCard(){
   const cur=currentStreak(),best=Math.max(longestStreak(),state.bestStreak||0);
@@ -633,24 +633,27 @@ function renderProfile() {
 }
 
 function renderTraining() {
-  const next=nextWorkout(),recent=state.workouts.slice(-5).reverse();
+  const recent=state.workouts.slice(-5).reverse();
+  const sel=selectedPlanDay==null?todayWeekday():selectedPlanDay;
+  const sd=state.plan.week[sel],active=!!(sd&&sd.active&&sd.exercises.length);
+  const todayTag=sel===todayWeekday()?" · "+(state.settings.language==="en"?"today":"aujourd'hui"):"";
   document.getElementById("trainingView").innerHTML=`
     <div class="grid">
       <div class="panel" id="restTimerPanel" style="display:none"></div>
       <div class="panel"><div class="panel-head"><div><h2>${_("cald")}</h2><p>${esc(state.plan.split)}</p></div><button class="btn ghost" id="regeneratePlanBtn"><span data-icon="refresh"></span>${_("rg")}</button></div>
-        <div class="day-strip">${state.plan.week.map(d=>`<div class="day ${d.active?"active":""}"><strong>${esc(d.label)}</strong><span>${esc(d.focus)}</span></div>`).join("")}</div>
+        <div class="day-strip">${state.plan.week.map((d,i)=>`<div class="day ${d.active?"active":""}${i===sel?" selected":""}" data-cal-day="${i}"><strong>${esc(d.label)}</strong><span>${esc(d.focus)}</span></div>`).join("")}</div>
       </div>
       <div class="grid cols-2">
-        <div class="panel"><div class="panel-head"><div><h2>${esc(next.focus)}</h2><p>${esc(next.label)} · ${next.duration} min</p></div><span class="tag">${esc(state.profile.level)}</span></div>
-          ${next.exercises.length?`<button class="btn primary block" data-start-session style="margin-bottom:.7rem"><span data-icon="check"></span>${_("startSession")}</button>`:""}
-          <div class="exercise-list">${next.exercises.map(exerciseCard).join("")}</div>
-          ${next.exercises.length?`<div style="margin-top:1rem;display:flex;gap:.5rem;flex-wrap:wrap"><button class="btn" data-start-rest="${next.exercises[0].rest}"><span data-icon="timer"></span> ${_("rt")} (${next.exercises[0].rest}s)</button></div>`:""}
+        <div class="panel"><div class="panel-head"><div><h2>${esc(active?sd.focus:_("rst"))}${todayTag}</h2><p>${esc(sd.label)}${active?" · "+sd.duration+" min":""}</p></div><span class="tag">${esc(state.profile.level)}</span></div>
+          ${active?`<button class="btn primary block" data-start-session style="margin-bottom:.7rem"><span data-icon="check"></span>${_("startSession")}</button>`:""}
+          ${active?`<div class="exercise-list">${sd.exercises.map(exerciseCard).join("")}</div>`:`<div class="empty">${_("restDayMsg")}</div>`}
+          ${active?`<div style="margin-top:1rem;display:flex;gap:.5rem;flex-wrap:wrap"><button class="btn" data-start-rest="${sd.exercises[0].rest}"><span data-icon="timer"></span> ${_("rt")} (${sd.exercises[0].rest}s)</button></div>`:""}
         </div>
         <div class="grid">
           <div class="panel"><div class="panel-head"><div><h2>${_("lv2")}</h2><p>${_("lh")}</p></div></div>
             <div class="set-list">${recent.length?recent.map(i=>`<div class="set-row"><div><b>${esc(i.name)}</b><span>${formatDate(i.date)} · ${i.sets}x${i.reps} · RPE ${i.rpe}</span></div><strong>${formatNumber(i.volume)} kg</strong></div>`).join(""):`<div class="empty">${_("ns")}</div>`}</div>
           </div>
-          <div class="panel"><div class="panel-head"><div><h2>${_("alt")}</h2><p>${_("atp")}</p></div></div><ul class="summary-list">${next.exercises.slice(0,4).map(e=>`<li><span>${esc(e.name)}</span><strong>${esc(e.alternative)}</strong></li>`).join("")}</ul></div>
+          ${active?`<div class="panel"><div class="panel-head"><div><h2>${_("alt")}</h2><p>${_("atp")}</p></div></div><ul class="summary-list">${sd.exercises.slice(0,4).map(e=>`<li><span>${esc(e.name)}</span><strong>${esc(e.alternative)}</strong></li>`).join("")}</ul></div>`:""}
         </div>
       </div>
     </div>`;
@@ -794,9 +797,9 @@ function suggestedWeight(ex){return progressionFor(ex).weight;}
 // ===== Séance guidée =====
 let sessionState=null;
 function startSession(){
-  const day=nextWorkout();
+  const day=currentWorkout();
   if(!day.exercises||!day.exercises.length){showToast(_("ns"));return;}
-  sessionState={idx:0,logs:{}};
+  sessionState={idx:0,logs:{},exercises:day.exercises};
   day.exercises.forEach(ex=>{
     sessionState.logs[ex.id]={name:ex.name,exId:ex.id,rest:ex.rest,bw:!ex.load,
       weight:suggestedWeight(ex),sets:Array.from({length:ex.sets||3},()=>({reps:targetReps(ex),done:false}))};
@@ -805,7 +808,7 @@ function startSession(){
 }
 function renderSession(){
   if(!sessionState)return;
-  const exs=nextWorkout().exercises,ex=exs[sessionState.idx],log=sessionState.logs[ex.id],prog=progressionFor(ex);
+  const exs=sessionState.exercises,ex=exs[sessionState.idx],log=sessionState.logs[ex.id],prog=progressionFor(ex);
   let c=document.getElementById("sessionOverlay");
   if(!c){c=document.createElement("div");c.id="sessionOverlay";c.className="onboarding-overlay";document.body.appendChild(c);}
   const dots=exs.map((e,i)=>`<div class="onboarding-dot ${i===sessionState.idx?"active":i<sessionState.idx?"done":""}"></div>`).join("");
@@ -1037,6 +1040,10 @@ function todaysFoodTotals(){return state.foods.filter(f=>f.date===todayISO()).re
 function weeklyWorkoutStats(){const s=startOfWeek(new Date());const w=state.workouts.filter(w=>new Date(w.date)>=s);return{sessions:new Set(w.map(w=>w.date)).size,volume:w.reduce((s,w)=>s+w.volume,0)};}
 function renderWeekProgress(){const w=weeklyWorkoutStats();const p=clamp(Math.round((w.sessions/Math.max(1,state.profile.sessions))*100),0,100);document.getElementById("weekProgressBar").style.setProperty("--value",p+"%");document.getElementById("weekProgressText").textContent=w.sessions+"/"+state.profile.sessions+" "+_("ses");}
 function nextWorkout(){const a=state.plan.week.filter(d=>d.active);return a[0]||{label:_("rst"),focus:_("rst"),duration:30,exercises:[exerciseLibrary.find(e=>e.id==="plank")]};}
+// Jour actuellement sélectionné dans le calendrier (peut être un jour de repos).
+function selectedDay(){const i=selectedPlanDay==null?todayWeekday():selectedPlanDay;return (state.plan&&state.plan.week)?state.plan.week[i]:null;}
+// Séance à démarrer : le jour sélectionné s'il est actif, sinon le 1er jour actif.
+function currentWorkout(){const d=selectedDay();return (d&&d.active&&d.exercises&&d.exercises.length)?d:nextWorkout();}
 function recoveryScore(){const w=weeklyWorkoutStats(),p=state.profile.sessions;if(w.sessions>p)return 58;if(w.sessions===p)return 76;return 84;}
 function recoveryLabel(){const s=recoveryScore();if(s<60)return _("tw");if(s<78)return _("rl");return _("stb");}
 function trainingAdvice(){return{load:detectPlateauList().length?"Micro-charge":"+1 rep avant charge",nutrition:todaysFoodTotals().protein<calculateNutrition(state.profile).protein*.7?"+ protéines":"Macros stables",recovery:recoveryScore()<60?"-20% volume":"Repos normal"};}
