@@ -13,7 +13,7 @@ const _t = {
     la:"Analyse locale",stb:"Stable",det:"Détectée",ld:"Charge",nul:"Nutrition",rl:"Récupération",att:"Attention",
     ac:"Demander un conseil",up:"Profil utilisateur",sv:"Données sauvegardées localement",fr:"France",
     age:"Âge",sx:"Sexe",hgt:"Taille",wgt:"Poids",lvl:"Niveau",gl:"Objectif",act:"Activité quotidienne",
-    spw:"Séances par semaine",eq:"Matériel disponible",inj:"Blessures ou limitations",fp:"Préférences alimentaires",
+    spw:"Séances par semaine",sdur:"Durée d'une séance",eq:"Matériel disponible",inj:"Blessures ou limitations",fp:"Préférences alimentaires",
     srg:"Enregistrer et régénérer",syn:"Synthèse",cc:"Calculs actuels",actv:"Actif",st:"Structure",
     pro:"Protéines",car:"Glucides",lip:"Lipides",priv:"Confidentialité",lv:"Version locale",
     acc:"Comptes",rdy:"Préparé",syncc:"Synchronisation",toc:"À brancher",rai:"IA réelle",ss:"Côté serveur",
@@ -90,7 +90,7 @@ const _t = {
     la:"Local Analysis",stb:"Stable",det:"Detected",ld:"Load",nul:"Nutrition",rl:"Recovery",att:"Attention",
     ac:"Ask for advice",up:"User Profile",sv:"Data saved locally",fr:"France",
     age:"Age",sx:"Sex",hgt:"Height",wgt:"Weight",lvl:"Level",gl:"Goal",act:"Daily Activity",
-    spw:"Sessions per week",eq:"Available Equipment",inj:"Injuries or Limitations",fp:"Food Preferences",
+    spw:"Sessions per week",sdur:"Session duration",eq:"Available Equipment",inj:"Injuries or Limitations",fp:"Food Preferences",
     srg:"Save & Regenerate",syn:"Summary",cc:"Current Calculations",actv:"Active",st:"Structure",
     pro:"Protein",car:"Carbs",lip:"Fat",priv:"Privacy",lv:"Local Version",
     acc:"Accounts",rdy:"Ready",syncc:"Sync",toc:"To connect",rai:"Real AI",ss:"Server side",
@@ -276,7 +276,7 @@ const achievementsDef = [
 const defaultState = {
   onboardingDone:false,
   settings:{theme:"dark",language:"fr",notifications:false,reminderTime:"18:00"},
-  profile:{name:"",age:30,sex:"Homme",height:175,weight:75,level:"Intermédiaire",goal:"Recomposition corporelle",activity:"Modérée",sessions:3,equipment:["Haltères"],limitations:"",foodPreferences:""},
+  profile:{name:"",age:30,sex:"Homme",height:175,weight:75,level:"Intermédiaire",goal:"Recomposition corporelle",activity:"Modérée",sessions:3,sessionDuration:60,equipment:["Haltères"],limitations:"",foodPreferences:""},
   plan:null,workouts:[],foods:[],measures:[],chat:[],completedExercises:[],achievements:[],favorites:[],overloadCount:0,water:{},deloadUntil:null,bestStreak:0
 };
 
@@ -609,6 +609,7 @@ function renderProfile() {
     <div class="grid cols-2">
       <div class="panel"><div class="panel-head"><div><h2>${_("up")}</h2><p>${_("sv")}</p></div><span class="tag warn">${_("fr")}</span></div>
         <form class="form-grid" id="profileForm">${inp("name",_("un"),"text",p.name)}${inp("age",_("age"),"number",p.age)}${sel("sex",_("sx"),["Homme","Femme","Autre"],p.sex)}${inp("height",_("hgt"),"number",p.height)}${inp("weight",_("wgt"),"number",p.weight)}${sel("level",_("lvl"),["Débutant","Intermédiaire","Avancé"],p.level)}${sel("goal",_("gl"),["Prise de masse","Perte de poids","Sèche","Recomposition corporelle","Force","Endurance","Remise en forme"],p.goal)}${sel("activity",_("act"),["Sédentaire","Modérée","Active","Très active"],p.activity)}${sel("sessions",_("spw"),["2","3","4","5","6"],String(p.sessions))}
+          <label>${_("sdur")}<select name="sessionDuration"><option value="30" ${(Number(p.sessionDuration)||60)===30?"selected":""}>30 min</option><option value="60" ${(Number(p.sessionDuration)||60)===60?"selected":""}>1 h</option><option value="90" ${(Number(p.sessionDuration)||60)===90?"selected":""}>1 h 30</option></select></label>
           <div class="wide"><label>${_("eq")}</label><div class="chip-row">${allEq.map(i=>'<button type="button" class="chip" data-equipment-chip aria-pressed="'+p.equipment.includes(i)+'">'+i+'</button>').join("")}</div></div>
           <label class="wide">${_("inj")}<textarea name="limitations" rows="3">${esc(p.limitations)}</textarea></label>
           <label class="wide">${_("fp")}<textarea name="foodPreferences" rows="3">${esc(p.foodPreferences)}</textarea></label>
@@ -761,7 +762,7 @@ function renderOverload() {
 function saveProfile(e){
   e.preventDefault();const f=e.currentTarget,d=new FormData(f);
   const eq=[...f.querySelectorAll("[data-equipment-chip]")].filter(c=>c.getAttribute("aria-pressed")==="true").map(c=>c.textContent.trim());
-  state.profile={name:d.get("name")||"",age:Number(d.get("age")),sex:d.get("sex"),height:Number(d.get("height")),weight:Number(d.get("weight")),level:d.get("level"),goal:d.get("goal"),activity:d.get("activity"),sessions:Number(d.get("sessions")),equipment:eq.length?eq:["Poids du corps"],limitations:d.get("limitations").trim(),foodPreferences:d.get("foodPreferences").trim()};
+  state.profile={name:d.get("name")||"",age:Number(d.get("age")),sex:d.get("sex"),height:Number(d.get("height")),weight:Number(d.get("weight")),level:d.get("level"),goal:d.get("goal"),activity:d.get("activity"),sessions:Number(d.get("sessions")),sessionDuration:Number(d.get("sessionDuration"))||60,equipment:eq.length?eq:["Poids du corps"],limitations:d.get("limitations").trim(),foodPreferences:d.get("foodPreferences").trim()};
   state.plan=buildPlan(state.profile);persistAndRender(_("ps"));setView("dashboard");
 }
 
@@ -918,7 +919,7 @@ function buildPlan(profile){
     const t=templates.find(d=>d.index===i);
     if(!t)return{label,active:false,focus:_("rst"),duration:0,exercises:[]};
     const selected=selectExercises(pool,t.focus,profile);
-    return{label,active:true,focus:t.focus,duration:45+Math.min(20,selected.length*5),exercises:selected};
+    return{label,active:true,focus:t.focus,duration:Number(profile.sessionDuration)||60,exercises:selected};
   });
   return{split,week,updatedAt:new Date().toISOString()};
 }
@@ -934,13 +935,15 @@ function adaptedLoad(ex,profile){
   return Math.max(2.5,Math.round(load/2.5)*2.5); // arrondi au pas de 2,5 kg
 }
 
+// Nombre d'exercices selon la durée choisie de la séance (30/60/90 min).
+function exerciseCountFor(profile){const dur=Number(profile.sessionDuration)||60;return dur<=30?3:dur<=60?5:7;}
 function selectExercises(pool,focus,profile){
   const desired=focus.includes("Push")?["Pectoraux","Épaules","Triceps"]
     :focus.includes("Pull")?["Dos","Biceps","Gainage"]
     :(focus.includes("Bas")||focus.includes("Jambe"))?["Quadriceps","Fessiers","Ischios","Mollets","Gainage"]
     :focus.includes("Haut")?["Pectoraux","Dos","Épaules","Triceps","Biceps"]
     :["Pectoraux","Dos","Quadriceps","Fessiers","Gainage"];
-  const target=profile.level==="Débutant"?3:5;
+  const target=exerciseCountFor(profile);
   // Décalage selon la séance (A/B/C, Push/Pull…) pour varier les exercices
   // d'une séance à l'autre et exploiter tout le matériel disponible.
   const variant=focus.charCodeAt(focus.length-1)||0;
@@ -1242,7 +1245,19 @@ function saveState(){saveLocal();scheduleServerSync();}
 function loadState(){try{const s=localStorage.getItem(STORAGE_KEY);if(!s)return JSON.parse(JSON.stringify(defaultState));const m=JSON.parse(JSON.stringify(defaultState));const p=JSON.parse(s);return{...m,...p,settings:{...m.settings,...p.settings},profile:{...m.profile,...p.profile}};}catch(e){return JSON.parse(JSON.stringify(defaultState));}}
 function applyTheme(){document.documentElement.dataset.theme=state.settings.theme;const i=document.querySelector("#themeToggle [data-icon]");if(i)i.dataset.icon=state.settings.theme==="light"?"sun":"moon";}
 function injectIcons(){document.querySelectorAll("[data-icon]").forEach(e=>{const i=icons[e.dataset.icon];if(i)e.innerHTML=i;});}
-function registerServiceWorker(){if(!("serviceWorker"in navigator)||!location.protocol.startsWith("http"))return;navigator.serviceWorker.register("sw.js").catch(()=>{showToast(_("swf"));});}
+function registerServiceWorker(){
+  if(!("serviceWorker"in navigator)||!location.protocol.startsWith("http"))return;
+  // Si un service worker contrôle déjà la page, c'est une mise à jour : quand le
+  // nouveau prend la main, on recharge une fois pour afficher la dernière version.
+  const hadController=!!navigator.serviceWorker.controller;
+  let refreshing=false;
+  navigator.serviceWorker.addEventListener("controllerchange",()=>{
+    if(refreshing||!hadController)return;refreshing=true;window.location.reload();
+  });
+  navigator.serviceWorker.register("sw.js")
+    .then((reg)=>{reg.update().catch(()=>{});})
+    .catch(()=>{showToast(_("swf"));});
+}
 function updateSyncStatus(){const s=document.getElementById("syncStatus");if(!s)return;const o=navigator.onLine;const who=auth.authenticated?(auth.username||_("acc")):_("lo");s.textContent=who+" · "+(o?_("ol"):_("ofl"));s.classList.toggle("online",o);}
 
 function isStandalone(){return window.matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;}
